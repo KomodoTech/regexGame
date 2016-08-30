@@ -103,14 +103,14 @@ Game.prototype.displayPlayerInfo = function(){
     $("#" + player.boardSide + "-player-options").empty();
     if (this.attackingPlayer === player) {
       player.attackStrings.forEach(function(attackString){
-        $("#" + player.boardSide + "-player-options").append("<div class='attackRadio'><input type='radio' class='radOpt' name='attacks' value='" + attackString + "'> " + attackString.literalValue + "</div>");
+        $("#" + player.boardSide + "-player-options").append("<div class='attackRadio'><input type='radio' class='radOpt' name='attacks' value='" + attackString + "'> " + attackString.attackValue + "</div>");
         $("#" + player.boardSide + "-player-action").text("Attack");
       });
     }
     if (this.defendingPlayer === player) {
       $("#" + player.boardSide + "-player-options").append("Remaining Defenses: ");
       player.defenseRegexs.forEach(function(defenseRegex){
-        $("#" + player.boardSide + "-player-options").append("<li>" + defenseRegex.literalValue + "</li>");
+        $("#" + player.boardSide + "-player-options").append("<li>" + defenseRegex.defenseObject + "</li>");
         $("#" + player.boardSide + "-player-action").text("Defend");
       });
     }
