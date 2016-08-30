@@ -48,6 +48,42 @@ Game.prototype.testMultipleStrings = function(regex, testStrings) {
 
 
 
+
+/*=PLAYER OBJECT==============================================================*/
+/*======BACKEND===============================================================*/
+function Player(name) {
+  this.playerName = name;
+  this.energy = 100;
+  this.bodyParts = [];
+  this.attackStrings = [];
+  this.defenseRegexs = [];
+  this.human = 1;
+}
+
+Player.prototype.attack(attackTarget, attackString) {
+
+}
+
+Player.prototype.defend(defenseTarget, degenseRegex) {
+
+}
+
+Player.prototype.removeBodyPart(bodyPartIndex) {
+  var removedPart = this.bodyParts.splice(bodyPartIndex, 1);
+  return removedPart;
+}
+
+Player.prototype.modifyEnergy(energyChangeAmount) {
+  this.energy += energyChangeAmount;
+}
+
+/*======UI/DISPLAY====================================================================*/
+Player.prototype.drawPlayer() {
+
+}
+
+
+
 function initializeGame() {
 }
 
