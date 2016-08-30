@@ -30,7 +30,8 @@ function Game(players, gameTitle) {
 
 //NOTE: game will take attackingPlayer's currentString and compare it to defendingPlayer's currentRegex
 Game.prototype.evaluateTurn = function() {
-  while (this.defendingPlayer.currentRegexIndex < this.defendingPlayer.defenseRegexs.length) {
+  while (this.defendingPlayer.currentRegexIndex <= this.defendingPlayer.defenseRegexs.length) {
+    console.log(this.defendingPlayer.currentRegexIndex);
     this.evaluateAttack();
     this.defendingPlayer.currentRegexIndex++;
   }
@@ -42,6 +43,7 @@ Game.prototype.evaluateAttack = function() {
   var attackSuccess = this.testStringWithRegex(attackingPlayerString.literalValue, defendingPlayerRegex.literalValue);
 
   if (attackSuccess) {
+    this.defendingPlayer.currentRegexIndex--; //length of regex array decreases; decrement index to not skip elements
     this.defendingPlayer.removeRegexFromLibrary();
     console.log("critical hit!!");
     //TODO: balance player energy attack and defense
@@ -73,6 +75,23 @@ Game.prototype.switchPlayers = function(){
 
 /*=UI=========================================================================*/
 
+Game.prototype.displayPlayerInfo = function(){
+  for(var index = 0; index < this.players.length; index++){
+    var player = this.players[index];
+    $("#" + player.boardSide + "Box .energy-bar").html("<p>" + player.energy + "</p>");
+
+    if (this.attackingPlayer === player) {
+      player.attackStrings.forEach(function(attackString){
+        $("#" + player.boardSide + "-player-options").append("<li>" + attackString.literalValue + "</li>");
+      });
+    }
+    if (this.defendingPlayer === player) {
+      player.defenseRegexs.forEach(function(defenseRegex){
+        $("#" + player.boardSide + "-player-options").append("<li>" + defenseRegex.literalValue + "</li>");
+      });
+    }
+  }
+}
 
 
 
@@ -209,9 +228,6 @@ DefenseRegex.prototype.drawDefense = function() {
   this.generateDefenseAppearance();
 }
 
-function displayPlayerInfo(player){
-  $("#" + player.boardSide + "Box .energy-bar").html("<p>" + player.energy + "</p>");
-}
 
 function testGame() {
 
@@ -222,10 +238,10 @@ function testGame() {
   var player2 = new Player("ManSnake", testRegexLibrary, testStringLibrary, 'right');
 
   var players = [player1, player2];
-  displayPlayerInfo(player1);
-  displayPlayerInfo(player2);
 
   var testGame = new Game(players, "SnakeMan vs ManSnake: A Tale of Two Rejects");
+
+  testGame.displayPlayerInfo();
 
   console.log(testGame);
 
