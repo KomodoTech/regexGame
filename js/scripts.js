@@ -1,45 +1,37 @@
+
 var tierTwoLibraryStrings = ['dog', 'coffee', 'portmanteau'];
 var tierOneLibrary = [new RegExp('0'), new RegExp('0|1'), new RegExp('[^01]'), new RegExp('^[01]')];
 
 
 /*=GAME OBJECT================================================================*/
 /*=BACKEND====================================================================*/
-function Game(library, inputMode) {
-  this.regexLibrary = library;
-  this.mode = inputMode;
-  this.currentRegex = this.regexLibrary[0];
-}
-
-Game.prototype.testRegex = function(regex, userString) {
-  console.log("regex: " + regex + " userString: " + userString);
-
-  var passedTest = regex.test(userString);
-  if (passedTest) {
-    alert("Well done ya diggity dawgington");
-  }
-  else {
-    alert("We know regex is tough. Try again");
-  }
-  return passedTest;
+function Game(players, gameTitle) {
+  this.attackingPlayer = players[0]; //NOTE: ASSUME TWO PLAYERS FOR NOW
+  this.defendingPlayer = players[1];
+  this.gameName = gameTitle; //"SnakeMan vs ManSnake: A Tale of Rejects"
 }
 
 
-Game.prototype.addRegexToLibrary = function(regexInstance) {
-  this.regexLibrary.push(regexInstance);
-}
-
-Game.prototype.removeRegexFromLibrary = function(regexInstanceIndex) {
-  this.regexLibrary.splice(regexInstanceIndex, 1);
-}
-
-Game.prototype.setCurrentRegex = function(regexIndex) {
-  this.currentRegex = this.regexLibrary[regexIndex];
-}
-
-Game.prototype.testMultipleStrings = function(regex, testStrings) {
+//NOTE: game will take attackingPlayer's currentString and compare it to defendingPlayer's currentRegex
+Game.prototype.testStrings = function(regex, testStrings) {
   var passed = [];
   for (var stringIndex = 0; stringIndex < testStrings.length; stringIndex++) {
-    passed.push(this.testRegex(regex, testStrings[stringIndex]));
+    console.log("regex: " + regex + " userString: " + userString);
+
+    //NOTE: Allows user to pass in a single string directly instead of an array
+    if (testStrings.length > 1) {
+      var passedTest = regex.test(testStrings[stringIndex]);
+    }
+    else {
+      var passedTest = regex.test(testStrings);
+    }
+    if (passedTest) {
+      alert("Well done ya diggity dawgington");
+    }
+    else {
+      alert("We know regex is tough. Try again");
+    }
+    passed.push(passedTest);
   }
   return passed;
 }
@@ -51,36 +43,122 @@ Game.prototype.testMultipleStrings = function(regex, testStrings) {
 
 /*=PLAYER OBJECT==============================================================*/
 /*======BACKEND===============================================================*/
-function Player(name) {
+function Player(name, regexlibrary, stringLibrary) {
   this.playerName = name;
   this.energy = 100;
   this.bodyParts = [];
-  this.attackStrings = [];
-  this.defenseRegexs = [];
+  this.attackStrings = stringLibrary;
+  this.defenseRegexs = regexLibrary;
   this.human = 1;
+
+  //TODO: find a less error prone way of organizing this
+  this.mode = 0; //DEFENSE=0 ATTACK=1
+
+  this.currentRegex = this.regexLibrary[0];
+  this.currentString = this.stringLibrary[0];
 }
 
-Player.prototype.attack(attackTarget, attackString) {
+
+
+Player.prototype.addRegexToLibrary = function(regexInstance) {
+  this.regexLibrary.push(regexInstance);
+}
+
+Player.prototype.removeRegexFromLibrary = function(regexInstanceIndex) {
+  this.regexLibrary.splice(regexInstanceIndex, 1);
+}
+
+Player.prototype.setCurrentRegex = function(regexIndex) {
+  this.currentRegex = this.regexLibrary[regexIndex];
+}
+
+Player.prototype.addStringToLibrary = function(attackString) {
 
 }
 
-Player.prototype.defend(defenseTarget, degenseRegex) {
+
+Player.prototype.attack = function(attackTarget, attackString) {
 
 }
 
-Player.prototype.removeBodyPart(bodyPartIndex) {
+Player.prototype.defend = function(defenseTarget, degenseRegex) {
+
+}
+
+Player.prototype.removeBodyPart = function(bodyPartIndex) {
   var removedPart = this.bodyParts.splice(bodyPartIndex, 1);
   return removedPart;
 }
 
-Player.prototype.modifyEnergy(energyChangeAmount) {
+Player.prototype.modifyEnergy = function(energyChangeAmount) {
   this.energy += energyChangeAmount;
 }
 
 /*======UI/DISPLAY====================================================================*/
-Player.prototype.drawPlayer() {
+Player.prototype.drawPlayer = function() {
 
 }
+
+
+
+/*=AttackString Object================================================================*/
+/*======BACKEND=======================================================================*/
+function AttackString(literalValue) {
+  this.stringValue = literalValue;
+  this.stringColor;
+  this.stringGraphic;
+  this.energyCost;
+  this.attackName;
+}
+
+
+AttackString.prototype.calculateAttackCost = function() {
+
+}
+
+
+AttackString.prototype.generateAttackAppearance = function() {
+
+}
+
+/*======UI/DISPLAY====================================================================*/
+AttackString.prototype.drawAttack = function() {
+
+}
+
+
+
+
+/*=DefenseRegex Object================================================================*/
+/*======BACKEND=======================================================================*/
+function DefenseRegex(literalValue) {
+  this.stringValue = literalValue;
+  this.stringColor;
+  this.stringGraphic;
+  this.energyCost;
+  this.attackName;
+}
+
+
+DefenseRegex.prototype.calculateDefenseCost = function() {
+
+}
+
+
+DefenseRegex.prototype.generateDefenseAppearance = function() {
+
+}
+
+/*======UI/DISPLAY====================================================================*/
+DefenseRegex.prototype.drawDefense = function() {
+
+}
+
+
+
+
+
+
 
 
 
