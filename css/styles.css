@@ -84,6 +84,7 @@ img {
 
 .energy-bar {
   color: red;
+  font-size: 0.9em;
   text-align: left;
   margin-left: 10%;
 }

@@ -89,13 +89,15 @@ Game.prototype.switchPlayers = function(){
 /*=UI=========================================================================*/
 
 Game.prototype.displayPlayerInfo = function(){
+  var healthBarSegmentSize = 1; //visual scale to make it fit in display
   for(var playerIndex = 0; playerIndex < this.players.length; playerIndex++){
     var player = this.players[playerIndex];
 
     //display health-bar
     $("#" + player.boardSide + "Box div .energy-bar").empty();
     var healthDisplayChunk = 0;
-    while(healthDisplayChunk < player.energy / 1.6){
+    //TODO Check for rounding errors
+    while(healthDisplayChunk < player.energy / healthBarSegmentSize){
       $("#" + player.boardSide + "Box div .energy-bar").append("|");
       healthDisplayChunk ++;
     }
@@ -263,7 +265,7 @@ function testGame() {
   var player2 = new Player("ManSnake", testRegexLibrary, testStringLibrary, 'right');
 
   //check health display
-  // player1.energy = 80;
+  // player1.energy = 1;
 
   var players = [player1, player2];
 
