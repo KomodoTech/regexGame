@@ -20,6 +20,7 @@ function makeDefenseLibrary(regexLibrary) {
 /*=GAME OBJECT================================================================*/
 /*=BACKEND====================================================================*/
 function Game(players, gameTitle) {
+  this.players = players;
   this.attackingPlayer = players[0]; //NOTE: ASSUME TWO PLAYERS FOR NOW
   this.defendingPlayer = players[1];
   this.gameName = gameTitle; //"SnakeMan vs ManSnake: A Tale of Rejects"
@@ -42,21 +43,32 @@ Game.prototype.evaluateAttack = function() {
 
   if (attackSuccess) {
     this.defendingPlayer.removeRegexFromLibrary();
-    console.log("success");
+    console.log("critical hit!!");
     //TODO: balance player energy attack and defense
-    this.modifyEnergy(defendingPlayerRegex.energyCost);
+    //this.modifyEnergy(defendingPlayerRegex.energyCost);
   }
   else {
-    console.log("miss");
+    console.log("deflected!");
   }
 }
 
 
 Game.prototype.testStringWithRegex = function(testString, testRegex) {
-  console.log("attack: " + testString);
-  console.log("defense: " + testRegex);
+  console.log(this.attackingPlayer.playerName + " attacks with: " + testString);
+  console.log(this.defendingPlayer.playerName + " defends with: " + testRegex);
   var accepted = testRegex.test(testString);
   return accepted;
+}
+
+Game.prototype.switchPlayers = function(){
+  if(this.attackingPlayer === this.players[0]){
+    this.attackingPlayer = this.players[1];
+    this.defendingPlayer = this.players[0];
+  }
+  else {
+    this.attackingPlayer = this.players[0];
+    this.defendingPlayer = this.players[1];
+  }
 }
 
 /*=UI=========================================================================*/
@@ -66,12 +78,13 @@ Game.prototype.testStringWithRegex = function(testString, testRegex) {
 
 /*=PLAYER OBJECT==============================================================*/
 /*======BACKEND===============================================================*/
-function Player(name, regexLibrary, stringLibrary) {
+function Player(name, regexLibrary, stringLibrary, boardSide) {
   this.playerName = name;
   this.energy = 100;
   this.attackStrings = stringLibrary;
   this.defenseRegexs = regexLibrary;
   this.human = 1;
+  this.boardSide = boardSide;
 
   this.currentRegexIndex = 0;
   this.currentStringIndex = 0;
@@ -86,7 +99,7 @@ Player.prototype.addRegexToLibrary = function(regexInstance) {
 }
 
 Player.prototype.removeRegexFromLibrary = function() {
-  var removedRegex = this.defenseRegexs.splice(currentRegexIndex, 1);
+  var removedRegex = this.defenseRegexs.splice(this.currentRegexIndex, 1);
   return removedRegex;
 }
 
@@ -196,28 +209,28 @@ DefenseRegex.prototype.drawDefense = function() {
   this.generateDefenseAppearance();
 }
 
-
-
-
-
-
+function displayPlayerInfo(player){
+  $("#" + player.boardSide + "Box .energy-bar").html("<p>" + player.energy + "</p>");
+}
 
 function testGame() {
-  // debugger;
-  // var attackString = new AttackString("As jhk");
-  // attackString.generateAttackAppearance();
-  // var coloredString = attackString.stringValue.fontcolor(attackString.stringColor);
-  // console.log('%c ' + coloredString, 'background: #fff; color: ' + attackString.stringColor);
+
   makeAttackLibrary(testStringLibrary);
   makeDefenseLibrary(testRegexLibrary);
 
-  var player1 = new Player("SnakeMan", testRegexLibrary, testStringLibrary);
-  var player2 = new Player("ManSnake", testRegexLibrary, testStringLibrary);
+  var player1 = new Player("SnakeMan", testRegexLibrary, testStringLibrary, 'left');
+  var player2 = new Player("ManSnake", testRegexLibrary, testStringLibrary, 'right');
 
   var players = [player1, player2];
+  displayPlayerInfo(player1);
+  displayPlayerInfo(player2);
 
   var testGame = new Game(players, "SnakeMan vs ManSnake: A Tale of Two Rejects");
+
   console.log(testGame);
+
+  testGame.evaluateTurn();
+  testGame.switchPlayers();
   testGame.evaluateTurn();
 }
 

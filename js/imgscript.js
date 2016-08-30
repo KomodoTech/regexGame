@@ -7,7 +7,7 @@ $(document).ready(function() {
         backImg.hide();
         backImg.remove();
         $('.avatarLeft' ).append( backImg );
-        backImg.fadeIn()
+        //backImg.fadeIn()
     };
 
     _intervalId = setInterval( function() {
