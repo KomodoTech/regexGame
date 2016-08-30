@@ -1,36 +1,68 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>regex rejects</title>
-    <script src="https://code.jquery.com/jquery-3.1.0.slim.js"
-    integrity="sha256-L6ppAjL6jgtRmfiuigeEE5AwNI2pH/X9IBbPyanJeZw=" crossorigin="anonymous"></script>
-    <script type="text/javascript" src='js/scripts.js'>
-    </script>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/styles.css" rel="stylesheet" type="text/css">
-  </head>
+<head>
+  <meta charset="utf-8">
+  <title>regex rejects</title>
+  <script src="https://code.jquery.com/jquery-3.1.0.slim.js"
+  integrity="sha256-L6ppAjL6jgtRmfiuigeEE5AwNI2pH/X9IBbPyanJeZw=" crossorigin="anonymous"></script>
+  <script type="text/javascript" src='js/scripts.js'>
+  </script>
+  <script src="img/imgscript.js"></script>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/styles.css" rel="stylesheet" type="text/css">
+</head>
   <body>
-    <div class="container">
-      <div class="row">
-        <div class="col-md-6">
-          <div>
-            <form id="question-form">
-              <input id='regex-test' type='text'>
-            </form>
-            <h3 id="question"></h3>
-            <div class='form-inline'>
-              <input id='regex1' class='form-control' type='text'>
-              <input id='user-string' class="form-control" type="text">
+    <div id="container">
+      <div class='row'>
+        <!-- //Left player options -->
+        <div class='col-sm-3'>
+          <div id="leftBox">
+            <h4>Player 1: SnakeMan</h4>
+            <div class='health-bar'>
+              <img src="img/health.png">
             </div>
-              <button id='test-regex' class='btn btn-default'>Test</button>
-              <h3 id="answer"></h3>
-            </div>
-          </div>
-          <div class="col-md-6">
-          </div>
-      </div>
-    </div>
 
+            <div class='options-list'>
+              <ul id='left-player-options'>
+                <li>/A/</li>
+                <li>/^A/</li>
+                <li>/$^[ATGF?]/</li>
+              </ul>
+            </div>
+
+            <button id='left-player-action' class='btn btn-success'>Attack</button>
+          </div>
+        </div>
+
+
+        <!-- //Battle display stage -->
+        <div class='col-sm-5'>
+          <div id="battleBox">
+            <img src="img/suit.png" class="avatarLeft">
+            <img src="https://www.colourbox.com/preview/3303319-hurdle-race-businessman-with-briefcase.jpg"
+            class="avatarLeft">
+            <img src="img/snake.png" class="avatarRight">
+          </div>
+        </div>
+
+        <!-- //Right player options -->
+        <div class='col-sm-3'>
+          <div id="rightBox">
+            <h4>Player 2: ManSnake</h4>
+            <div class='health-bar'>
+              <img src="img/health.png">
+            </div>
+
+            <div class='options-list'>
+              <ul id='right-player-options'>
+              </ul>
+            </div>
+            <button id='right-player-action'></button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
   </body>
 </html>
