@@ -1,7 +1,21 @@
 
-var tierTwoLibraryStrings = ['dog', 'coffee', 'portmanteau'];
-var tierOneLibrary = [new RegExp('0'), new RegExp('0|1'), new RegExp('[^01]'), new RegExp('^[01]')];
+var testStringLibrary = ['dog', 'coffee', 'portmanteau'];
+var testRegexLibrary = ['0', '0|1', '[^01]', '^[01]'];
 
+
+function makeAttackLibrary(stringLibrary) {
+  for (var stringIndex = 0; stringIndex < stringLibrary.length; stringIndex++) {
+    var attack = new AttackString(stringLibrary[stringIndex]);
+    stringLibrary[stringIndex] = attack;
+  }
+}
+
+function makeDefenseLibrary(regexLibrary) {
+  for (var regexIndex = 0; regexIndex < regexLibrary.length; regexIndex++) {
+    var defense = new DefenseRegex(regexLibrary[regexIndex]);
+    regexLibrary[regexIndex] = defense;
+  }
+}
 
 /*=GAME OBJECT================================================================*/
 /*=BACKEND====================================================================*/
@@ -15,24 +29,32 @@ function Game(players, gameTitle) {
 
 //NOTE: game will take attackingPlayer's currentString and compare it to defendingPlayer's currentRegex
 Game.prototype.evaluateTurn = function() {
-  var attackingPlayerString = this.attackingPlayer.currentString;
-  var defendingPlayerRegex = this.defendingPlayer.currentRegex;
+  while (this.defendingPlayer.currentRegexIndex < this.defendingPlayer.defenseRegexs.length) {
+    this.evaluateAttack();
+    this.defendingPlayer.currentRegexIndex++;
+  }
+}
+Game.prototype.evaluateAttack = function() {
+  var attackingPlayerString = this.attackingPlayer.getCurrentStringObject();
+  var defendingPlayerRegex = this.defendingPlayer.getCurrentRegexObject();
 
-  //TODO: ugly fix this hack
-  var defendingPlayerRegexIndex = this.defendingPlayer.defenseRegexs.indexOf(defendingPlayerRegex);
-
-  var attackSuccess = this.testStringWithRegex(attackingPlayerString, defendingPlayerRegex);
+  var attackSuccess = this.testStringWithRegex(attackingPlayerString.literalValue, defendingPlayerRegex.literalValue);
 
   if (attackSuccess) {
-    this.defendingPlayer.removeRegexFromLibrary(defendingPlayerRegexIndex);
-
+    this.defendingPlayer.removeRegexFromLibrary();
+    console.log("success");
     //TODO: balance player energy attack and defense
     this.modifyEnergy(defendingPlayerRegex.energyCost);
+  }
+  else {
+    console.log("miss");
   }
 }
 
 
 Game.prototype.testStringWithRegex = function(testString, testRegex) {
+  console.log("attack: " + testString);
+  console.log("defense: " + testRegex);
   var accepted = testRegex.test(testString);
   return accepted;
 }
@@ -44,34 +66,37 @@ Game.prototype.testStringWithRegex = function(testString, testRegex) {
 
 /*=PLAYER OBJECT==============================================================*/
 /*======BACKEND===============================================================*/
-function Player(name, regexlibrary, stringLibrary) {
+function Player(name, regexLibrary, stringLibrary) {
   this.playerName = name;
   this.energy = 100;
   this.attackStrings = stringLibrary;
   this.defenseRegexs = regexLibrary;
   this.human = 1;
 
-  //TODO: find a less error prone way of organizing this
-  //NOTE: Is this necessary?
-  this.mode = 0; //DEFENSE=0 ATTACK=1
-
   this.currentRegexIndex = 0;
   this.currentStringIndex = 0;
 }
 
-
+Player.prototype.getCurrentRegexObject = function() {
+  return this.defenseRegexs[this.currentRegexIndex];
+}
 
 Player.prototype.addRegexToLibrary = function(regexInstance) {
   this.regexLibrary.push(regexInstance);
 }
 
-Player.prototype.removeRegexFromLibrary = function(regexInstanceIndex) {
-  var removedRegex = this.defenseRegexs.splice(regexInstanceIndex, 1);
+Player.prototype.removeRegexFromLibrary = function() {
+  var removedRegex = this.defenseRegexs.splice(currentRegexIndex, 1);
   return removedRegex;
 }
 
 Player.prototype.setCurrentRegexIndex = function(regexIndex) {
   this.currentRegexIndex = regexIndex;
+}
+
+
+Player.prototype.getCurrentStringObject = function() {
+  return this.attackStrings[this.currentStringIndex];
 }
 
 Player.prototype.addStringToLibrary = function(attackString) {
@@ -107,12 +132,12 @@ Player.prototype.defend = function() {
 
 /*=AttackString Object================================================================*/
 /*======BACKEND=======================================================================*/
-function AttackString(literalValue) {
-  this.stringValue = literalValue;
-  this.stringColor;
-  this.stringGraphic;
+function AttackString(stringValue) {
+  this.literalValue = stringValue;
   this.energyCost;
   this.attackName;
+  this.stringColor;
+  this.stringGraphic;
 }
 
 
@@ -120,8 +145,21 @@ AttackString.prototype.calculateAttackCost = function() {
 
 }
 
-
+//NOTE: generate color based on first char in string
 AttackString.prototype.generateAttackAppearance = function() {
+  debugger;
+  var firstLetterAscii = this.stringValue.charCodeAt(0);
+  var firstLetterAsciiLength = firstLetterAscii.toString().length;
+
+  var stringColor = "#" + firstLetterAscii.toString();
+
+  for (var digitIndex = firstLetterAsciiLength; digitIndex < 6; digitIndex++) {
+    randomColorDigit = Math.floor(Math.random() * 9);
+    stringColor = stringColor + randomColorDigit.toString();
+  }
+
+  this.stringColor = stringColor;
+  return stringColor;
 
 }
 
@@ -135,8 +173,8 @@ AttackString.prototype.drawAttack = function() {
 
 /*=DefenseRegex Object================================================================*/
 /*======BACKEND=======================================================================*/
-function DefenseRegex(literalValue) {
-  this.stringValue = literalValue;
+function DefenseRegex(regexValue) {
+  this.literalValue = new RegExp(regexValue);
   this.stringColor;
   this.stringGraphic;
   this.energyCost;
@@ -164,39 +202,59 @@ DefenseRegex.prototype.drawDefense = function() {
 
 
 
+function testGame() {
+  // debugger;
+  // var attackString = new AttackString("As jhk");
+  // attackString.generateAttackAppearance();
+  // var coloredString = attackString.stringValue.fontcolor(attackString.stringColor);
+  // console.log('%c ' + coloredString, 'background: #fff; color: ' + attackString.stringColor);
+  makeAttackLibrary(testStringLibrary);
+  makeDefenseLibrary(testRegexLibrary);
 
+  var player1 = new Player("SnakeMan", testRegexLibrary, testStringLibrary);
+  var player2 = new Player("ManSnake", testRegexLibrary, testStringLibrary);
+
+  var players = [player1, player2];
+
+  var testGame = new Game(players, "SnakeMan vs ManSnake: A Tale of Two Rejects");
+  console.log(testGame);
+  testGame.evaluateTurn();
+}
 
 function initializeGame() {
+
 }
 
 
 $(document).ready(function(){
+  // debugger;
+  testGame();
 
-  var currentGame = new Game(tierOneLibrary, 'stringInputMode');
-  $('#regex1').val(currentGame.regexLibrary[0]);
-  var regexIndex = 0;
-
-  $('#test-regex').click(function(){
-    $('#regex1').val(currentGame.regexLibrary[regexIndex]);
-    var regexTest = currentGame.regexLibrary[regexIndex]
-    var input = $('#user-string').val();
-
-    if(currentGame.mode === 'stringInputMode'){
-      var result = currentGame.testRegex(regexTest, input);
-    } else {
-      var result = currentGame.testRegex(input,currentGame.regexLibrary[regexIndex]);
-    }
-
-    if(result){
-      console.log('correct');
-      regexIndex++;
-      $('#regex1').val(currentGame.regexLibrary[regexIndex]);
-      if(regexIndex === currentGame.regexLibrary.length - 1){
-        currentGame = new Game(tierTwoLibraryStrings, 'regexInputMode');
-        regexIndex = 0;
-      }
-    } else {
-      console.log('wrong');
-    }
-  });
+  // var currentGame = new Game(tierOneLibrary, 'stringInputMode');
+  // $('#regex1').val(currentGame.regexLibrary[0]);
+  // var regexIndex = 0;
+  //
+  // $('#test-regex').click(function(){
+  //   $('#regex1').val(currentGame.regexLibrary[regexIndex]);
+  //   var regexTest = currentGame.regexLibrary[regexIndex]
+  //   var input = $('#user-string').val();
+  //
+  //   if(currentGame.mode === 'stringInputMode'){
+  //     var result = currentGame.testRegex(regexTest, input);
+  //   } else {
+  //     var result = currentGame.testRegex(input,currentGame.regexLibrary[regexIndex]);
+  //   }
+  //
+  //   if(result){
+  //     console.log('correct');
+  //     regexIndex++;
+  //     $('#regex1').val(currentGame.regexLibrary[regexIndex]);
+  //     if(regexIndex === currentGame.regexLibrary.length - 1){
+  //       currentGame = new Game(tierTwoLibraryStrings, 'regexInputMode');
+  //       regexIndex = 0;
+  //     }
+  //   } else {
+  //     console.log('wrong');
+  //   }
+  // });
 });
