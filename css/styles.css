@@ -8,6 +8,7 @@ body {
 }
 
 #leftBox {
+  color: #9d9daf;
   background-color: #3e3e5b;
   float: left;
   margin-left: 5%;
@@ -17,6 +18,7 @@ body {
 }
 
 #rightBox {
+  color: #9d9daf;
   background-color: #3e3e5b;
   float: left;
   margin-left: 20%;
@@ -36,12 +38,14 @@ body {
 
 .avatarRight{
   max-width: 260px;
+  height: 100px;
   margin-top: 4%;
 }
 
 .avatarLeft{
-  max-width: 240px;
-  margin-top: 10%;
+  width: 240px;
+  height: auto;
+  margin-top: 30px;
 
 }
 
@@ -55,7 +59,7 @@ h4 {
   color: #ecd9c6;
 }
 
-li {
+li, .attackRadio {
   color: #c9b19c;
   text-align: left;
   margin-top: 5%;
@@ -72,4 +76,19 @@ img {
 .btn {
   background-color: #9d9daf;
   margin-bottom: 3%;
+  position: absolute;
+  bottom: 0;
+  transform: translate(-50%);
+  text-align: right;
+}
+
+.energy-bar {
+  color: red;
+  text-align: left;
+  margin-left: 10%;
+}
+
+p {
+  color: #9d9daf;
+  font-family: "Avenir Condensed";
 }

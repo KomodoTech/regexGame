@@ -1,5 +1,5 @@
 
-var testStringLibrary = ['dog', 'coffee', 'portmanteau'];
+var testStringLibrary = ['0', 'coffee', 'portmanteau'];
 var testRegexLibrary = ['0', '0|1', '[^01]', '^[01]'];
 
 
@@ -30,21 +30,22 @@ function Game(players, gameTitle) {
 
 //NOTE: game will take attackingPlayer's currentString and compare it to defendingPlayer's currentRegex
 Game.prototype.evaluateTurn = function() {
-  while (this.defendingPlayer.currentRegexIndex <= this.defendingPlayer.defenseRegexs.length) {
+  while (this.defendingPlayer.currentRegexIndex < this.defendingPlayer.defenseRegexs.length) {
     console.log(this.defendingPlayer.currentRegexIndex);
     this.evaluateAttack();
     this.defendingPlayer.currentRegexIndex++;
   }
 }
 Game.prototype.evaluateAttack = function() {
+  debugger;
   var attackingPlayerString = this.attackingPlayer.getCurrentStringObject();
   var defendingPlayerRegex = this.defendingPlayer.getCurrentRegexObject();
 
   var attackSuccess = this.testStringWithRegex(attackingPlayerString.literalValue, defendingPlayerRegex.literalValue);
 
   if (attackSuccess) {
-    this.defendingPlayer.currentRegexIndex--; //length of regex array decreases; decrement index to not skip elements
     this.defendingPlayer.removeRegexFromLibrary();
+    this.defendingPlayer.currentRegexIndex--; //length of regex array decreases; decrement index to not skip elements
     console.log("critical hit!!");
     //TODO: balance player energy attack and defense
     //this.modifyEnergy(defendingPlayerRegex.energyCost);
@@ -76,24 +77,33 @@ Game.prototype.switchPlayers = function(){
 /*=UI=========================================================================*/
 
 Game.prototype.displayPlayerInfo = function(){
-  for(var index = 0; index < this.players.length; index++){
-    var player = this.players[index];
-    $("#" + player.boardSide + "Box .energy-bar").html("<p>" + player.energy + "</p>");
+  for(var playerIndex = 0; playerIndex < this.players.length; playerIndex++){
+    var player = this.players[playerIndex];
 
+    //display health-bar
+    $("#" + player.boardSide + "Box div .energy-bar").empty();
+    var healthDisplayChunk = 0;
+    while(healthDisplayChunk < player.energy / 1.6){
+      $("#" + player.boardSide + "Box div .energy-bar").append("|");
+      healthDisplayChunk ++;
+    }
+
+    $("#" + player.boardSide + "-player-options").empty();
     if (this.attackingPlayer === player) {
       player.attackStrings.forEach(function(attackString){
-        $("#" + player.boardSide + "-player-options").append("<li>" + attackString.literalValue + "</li>");
+        $("#" + player.boardSide + "-player-options").append("<div class='attackRadio'><input type='radio' class='radOpt' name='attacks' value='" + attackString + "'> " + attackString.literalValue + "</div>");
+        $("#" + player.boardSide + "-player-action").text("Attack");
       });
     }
     if (this.defendingPlayer === player) {
+      $("#" + player.boardSide + "-player-options").append("Remaining Defenses: ");
       player.defenseRegexs.forEach(function(defenseRegex){
         $("#" + player.boardSide + "-player-options").append("<li>" + defenseRegex.literalValue + "</li>");
+        $("#" + player.boardSide + "-player-action").text("Defend");
       });
     }
   }
 }
-
-
 
 /*=PLAYER OBJECT==============================================================*/
 /*======BACKEND===============================================================*/
@@ -118,7 +128,9 @@ Player.prototype.addRegexToLibrary = function(regexInstance) {
 }
 
 Player.prototype.removeRegexFromLibrary = function() {
+  debugger;
   var removedRegex = this.defenseRegexs.splice(this.currentRegexIndex, 1);
+  console.log(this.defenseRegexs);
   return removedRegex;
 }
 
@@ -237,6 +249,9 @@ function testGame() {
   var player1 = new Player("SnakeMan", testRegexLibrary, testStringLibrary, 'left');
   var player2 = new Player("ManSnake", testRegexLibrary, testStringLibrary, 'right');
 
+  //check health display
+  // player1.energy = 80;
+
   var players = [player1, player2];
 
   var testGame = new Game(players, "SnakeMan vs ManSnake: A Tale of Two Rejects");
@@ -248,6 +263,7 @@ function testGame() {
   testGame.evaluateTurn();
   testGame.switchPlayers();
   testGame.evaluateTurn();
+  testGame.displayPlayerInfo();
 }
 
 function initializeGame() {
