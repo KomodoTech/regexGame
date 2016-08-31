@@ -28,7 +28,7 @@ function makeDefenseLibrary(regexLibrary) {
 
 
 /*=GAME OBJECT================================================================*/
-/*=BACKEND====================================================================*/
+/*=====BACKEND================================================================*/
 function Game(players, gameTitle) {
   this.players = players;
   this.attackingPlayer = players[0]; //NOTE: ASSUME TWO PLAYERS FOR NOW
@@ -43,46 +43,49 @@ Game.prototype.resetGame = function() {
 
 //NOTE: game will take attackingPlayer's currentString and compare it to defendingPlayer's currentRegex
 Game.prototype.evaluateTurn = function() {
+  var stringEnergy = this.attackingPlayer.getCurrentStringObject().energyCost;
+  this.attackingPlayer.modifyEnergy(-stringEnergy);
 
-  this.attackingPlayer.modifyEnergy(-this.attackingPlayer.getCurrentStringObject().energyCost)
+  var initialLength = this.defendingPlayer.defenseRegexs.length;
 
-  this.defendingPlayer.setCurrentRegexIndex(0);
-  var initialLength = this.defendingPlayer.defenseRegexs.length
-  for(var defenseIndex = 0; defenseIndex < initialLength; defenseIndex++){
+  // NOTE: loops through regex library backwards
+  for (var defenseIndex = (initialLength - 1); defenseIndex >= 0; defenseIndex--) {
+    this.defendingPlayer.currentRegexIndex = defenseIndex;
     console.log('defense index: ' + this.defendingPlayer.currentRegexIndex);
     if (this.evaluateAttack()) {
       console.log("attack success");
     }
     else {
       console.log("attack failed");
-      this.defendingPlayer.currentRegexIndex++;
     }
   }
+
+  //check if there are any more regex objects left in defender's library
   if(this.defendingPlayer.defenseRegexs.length === 0){
     this.gameOver = true;
   }
+
+  //pause to allow user to see that something was removed
   this.displayPlayerInfo();
   setTimeout(function(){
     this.switchPlayers();
     this.displayPlayerInfo();
-  }.bind(this), 300)
+  }.bind(this), 800)
 }
+
 
 Game.prototype.evaluateAttack = function() {
   // debugger;
   var attackingPlayerString = this.attackingPlayer.getCurrentStringObject();
   var defendingPlayerRegex = this.defendingPlayer.getCurrentRegexObject();
 
-
+  // check to see if regex (defense) accepts string (attacks)
   var attackSuccess = this.testStringWithRegex(attackingPlayerString.attackValue, defendingPlayerRegex.defenseObject);
 
+  //TODO: print success and fail messages by inserting some html in the DOM
   if (attackSuccess) {
     this.defendingPlayer.removeRegexFromLibrary();
     console.log("critical hit!!");
-    console.log(this.attackingPlayer.playerName);
-    console.log(this.attackingPlayer.defenseRegexs);
-    //TODO: balance player energy attack and defense
-    //this.modifyEnergy(defendingPlayerRegex.energyCost);
   }
   else {
     console.log("deflected!");
@@ -90,14 +93,13 @@ Game.prototype.evaluateAttack = function() {
   return attackSuccess;
 }
 
-
+//NOTE: method calls on javascript internal RegExp object's prototype method regex.test(string)
 Game.prototype.testStringWithRegex = function(testString, testRegex) {
-  console.log(this.attackingPlayer.playerName + " attacks with: " + testString);
-  console.log(this.defendingPlayer.playerName + " defends with: " + testRegex);
   var accepted = testRegex.test(testString);
   return accepted;
 }
 
+//NOTE: Assume two players for now
 Game.prototype.switchPlayers = function(){
   if(this.attackingPlayer === this.players[0]){
     this.attackingPlayer = this.players[1];
@@ -109,6 +111,8 @@ Game.prototype.switchPlayers = function(){
   }
 }
 
+//TODO: refactor so that player object does not need to keep track of which side
+// it is on. That seems like something the game should deal with.
 Game.prototype.getPlayerAtPosition = function(side) {
   for (var playerIndex = 0; playerIndex < this.players.length; playerIndex++) {
     var playerAtIndex = this.players[playerIndex];
@@ -119,13 +123,14 @@ Game.prototype.getPlayerAtPosition = function(side) {
 
 }
 
-/*=UI=========================================================================*/
+/*======UI====================================================================*/
 
 Game.prototype.displayPlayerInfo = function(){
-  if(this.gameOver){
+  //TODO: move this check somewhere else so that alert doesn't get triggered twice
+  if (this.gameOver) {
     alert('Game over');
   }
-  for(var playerIndex = 0; playerIndex < this.players.length; playerIndex++){
+  for (var playerIndex = 0; playerIndex < this.players.length; playerIndex++) {
     var player = this.players[playerIndex];
 
     //display health-bar
@@ -137,7 +142,10 @@ Game.prototype.displayPlayerInfo = function(){
       healthDisplayChunk ++;
     }
 
+    //display defense and attack options
+    //TODO: update to reflect change in game tracking player side
     $("#" + player.boardSide + "-player-options").empty();
+    //TODO: Look into object comparison
     if (this.attackingPlayer === player) {
       player.attackStrings.forEach(function(attackString, attackStringIndex){
         $("#" + player.boardSide + "-player-options").append("<div class='attackRadio'><input type='radio' class='radOpt' name='attacks' value='" + attackStringIndex + "'> " + attackString.attackValue + "</div>");
@@ -162,16 +170,20 @@ function Player(name, regexLibrary, stringLibrary, boardSide) {
   this.energy = 100;
   this.attackStrings = stringLibrary;
   this.defenseRegexs = regexLibrary;
-  this.human = 1;
+  this.human = true;
+
   this.boardSide = boardSide;
 
   this.currentRegexIndex = 0;
   this.currentStringIndex = 0;
 }
 
+//TODO: evaluate pros and cons of having this method instead of just calling
+// somePlayer.defenseRegexs[somePlayer.currentRegexIndex];
 Player.prototype.getCurrentRegexObject = function() {
   return this.defenseRegexs[this.currentRegexIndex];
 }
+
 
 Player.prototype.addRegexToLibrary = function(regexInstance) {
   this.regexLibrary.push(regexInstance);
@@ -237,7 +249,7 @@ Player.prototype.defend = function() {
 /*======BACKEND=======================================================================*/
 function AttackString(stringValue) {
   this.attackValue = stringValue;
-  this.energyCost = stringValue.length;
+  this.energyCost = stringValue.length; //TODO: calculate energy cost with something more algorithmically
   this.attackName;
   this.stringColor;
   this.stringGraphic;
@@ -301,12 +313,9 @@ DefenseRegex.prototype.drawDefense = function() {
 
 
 function testGame() {
-
+  //TODO: Game object should take care of keeping track of boardSide
   var player1 = new Player("SnakeMan", makeDefenseLibrary(testRegexLibrary), makeAttackLibrary(testStringLibrary), 'left');
   var player2 = new Player("ManSnake", makeDefenseLibrary(testRegexLibrary), makeAttackLibrary(testStringLibrary), 'right');
-
-  //check health display
-  // player1.energy = 1;
 
   var players = [player1, player2];
 
@@ -327,23 +336,27 @@ function initializeGame() {
 
 $(document).ready(function(){
   // debugger;
-  //var myGame = testGame();
+  var myGame = testGame();
 
   //TODO: allow for 2 human players
   $("#left-player-action").click(function() {
+    //TODO: refactor to allow for left right player action functionality to be combined
     var leftPlayer = myGame.getPlayerAtPosition("left");
     console.log(leftPlayer.playerName);
     var attackIndex = $("input[name=attacks]:checked").val();
+    console.log(attackIndex);
     leftPlayer.setCurrentStringIndex(attackIndex);
     if (myGame.attackingPlayer.boardSide === "left") {
       myGame.evaluateTurn();
     }
   });
 
+  //TODO: See if we can get index out of jquery radio button selection
   $("#right-player-action").click(function() {
     var rightPlayer = myGame.getPlayerAtPosition("right");
     console.log(rightPlayer.playerName);
     var attackIndex = $("input[name=attacks]:checked").val();
+    console.log(attackIndex);
     rightPlayer.setCurrentStringIndex(attackIndex);
     if (myGame.attackingPlayer.boardSide === "right") {
       myGame.evaluateTurn();
