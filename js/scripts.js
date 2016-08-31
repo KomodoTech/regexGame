@@ -48,7 +48,7 @@ Game.prototype.evaluateTurn = function() {
 }
 
 Game.prototype.evaluateAttack = function() {
-  debugger;
+  // debugger;
   var attackingPlayerString = this.attackingPlayer.getCurrentStringObject();
   var defendingPlayerRegex = this.defendingPlayer.getCurrentRegexObject();
 
@@ -56,7 +56,6 @@ Game.prototype.evaluateAttack = function() {
 
   if (attackSuccess) {
     this.defendingPlayer.removeRegexFromLibrary();
-    this.defendingPlayer.currentRegexIndex--; //length of regex array decreases; decrement index to not skip elements
     console.log("critical hit!!");
     //TODO: balance player energy attack and defense
     //this.modifyEnergy(defendingPlayerRegex.energyCost);
@@ -134,6 +133,7 @@ function Player(name, regexLibrary, stringLibrary, boardSide) {
 }
 
 Player.prototype.getCurrentRegexObject = function() {
+  console.log(this.currentRegexIndex);
   return this.defenseRegexs[this.currentRegexIndex];
 }
 
@@ -142,7 +142,7 @@ Player.prototype.addRegexToLibrary = function(regexInstance) {
 }
 
 Player.prototype.removeRegexFromLibrary = function() {
-  debugger;
+  // debugger;
   var removedRegex = this.defenseRegexs.splice(this.currentRegexIndex, 1);
   console.log(this.defenseRegexs);
   return removedRegex;

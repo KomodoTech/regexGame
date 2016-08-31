@@ -1,7 +1,7 @@
 # Regex Rejects
 
 #### Epicodus | 08.29.16
-###### _By **Peter Armington // Alex Leibler // Kyle Fisher**_
+###### _By **Peter Armington // Alex Leibler // Kyle Fisher // Zachary Hedgepeth // Meredith Alcorn**_
 
 ## **//** Description
 
@@ -89,4 +89,4 @@ Contact kyle@kylefisher.com or peter.armington@gmail.com for more information.
 
 ### License
 
-Copyright (c) 2016 **Kyle Fisher, Peter Armington, Alex Leibler** **//**
+Copyright (c) 2016 **Kyle Fisher, Peter Armington, Alex Leibler, Zachary Hedgepeth, Meredith Alcorn** **//**
