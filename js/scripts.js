@@ -290,7 +290,15 @@ function DefenseRegex(regexValue) {
 
 
 DefenseRegex.prototype.calculateDefenseCost = function() {
-
+  var regexString = this.defenseObject.toString();
+  var specialCharCounter = 0;
+  for (var charIndex = 0; charIndex < regexString.length; charIndex++) {
+    if (!(/^[a-z0-9]$/.test(regexString.charAt(charIndex)))) {
+      specialCharCounter++;
+    }
+  }
+  this.energyCost = this.energyCost - 2; //subtract 2 for the / characters
+  console.log("energyCost: " + this.energyCost);
 }
 
 
@@ -316,6 +324,7 @@ function testGame() {
   testGame.displayPlayerInfo();
 
   console.log(testGame);
+  testGame.players[0].defenseRegexs[0].calculateDefenseCost();
 
   return testGame;
 }
