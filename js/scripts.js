@@ -1,8 +1,8 @@
 /*=VARIABLES==================================================================*/
 
 
-var testStringLibrary = ['0', 'coffee', 'portmanteau'];
-var testRegexLibrary = ['0', '0|1', '[^01]', '^[01]'];
+var testStringLibrary = ['0', 'coffee', 'portmanteau','pop','boooooh'];
+var testRegexLibrary = ['0', '0|1', '[^01]', '^[01]','^p[o]*p$','^b[o]+h$'];
 
 /*=GENERAL FUNCTIONS==========================================================*/
 function makeAttackLibrary(stringLibrary) {
@@ -43,6 +43,9 @@ Game.prototype.resetGame = function() {
 
 //NOTE: game will take attackingPlayer's currentString and compare it to defendingPlayer's currentRegex
 Game.prototype.evaluateTurn = function() {
+
+  this.attackingPlayer.modifyEnergy(-this.attackingPlayer.getCurrentStringObject().energyCost)
+
   this.defendingPlayer.setCurrentRegexIndex(0);
   var initialLength = this.defendingPlayer.defenseRegexs.length
   for(var defenseIndex = 0; defenseIndex < initialLength; defenseIndex++){
@@ -69,6 +72,7 @@ Game.prototype.evaluateAttack = function() {
   // debugger;
   var attackingPlayerString = this.attackingPlayer.getCurrentStringObject();
   var defendingPlayerRegex = this.defendingPlayer.getCurrentRegexObject();
+
 
   var attackSuccess = this.testStringWithRegex(attackingPlayerString.attackValue, defendingPlayerRegex.defenseObject);
 
@@ -233,7 +237,7 @@ Player.prototype.defend = function() {
 /*======BACKEND=======================================================================*/
 function AttackString(stringValue) {
   this.attackValue = stringValue;
-  this.energyCost;
+  this.energyCost = stringValue.length;
   this.attackName;
   this.stringColor;
   this.stringGraphic;
@@ -323,7 +327,7 @@ function initializeGame() {
 
 $(document).ready(function(){
   // debugger;
-  var myGame = testGame();
+  //var myGame = testGame();
 
   //TODO: allow for 2 human players
   $("#left-player-action").click(function() {
