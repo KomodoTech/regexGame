@@ -6,17 +6,21 @@ var testRegexLibrary = ['0', '0|1', '[^01]', '^[01]'];
 
 /*=GENERAL FUNCTIONS==========================================================*/
 function makeAttackLibrary(stringLibrary) {
+  var newLibrary = [];
   for (var stringIndex = 0; stringIndex < stringLibrary.length; stringIndex++) {
     var attack = new AttackString(stringLibrary[stringIndex]);
-    stringLibrary[stringIndex] = attack;
+    newLibrary.push(attack);
   }
+  return newLibrary;
 }
 
 function makeDefenseLibrary(regexLibrary) {
+  var newLibrary = [];
   for (var regexIndex = 0; regexIndex < regexLibrary.length; regexIndex++) {
     var defense = new DefenseRegex(regexLibrary[regexIndex]);
-    regexLibrary[regexIndex] = defense;
+    newLibrary.push(defense);
   }
+  return newLibrary;
 }
 
 
@@ -30,13 +34,19 @@ function Game(players, gameTitle) {
   this.attackingPlayer = players[0]; //NOTE: ASSUME TWO PLAYERS FOR NOW
   this.defendingPlayer = players[1];
   this.gameName = gameTitle; //"SnakeMan vs ManSnake: A Tale of Rejects"
-  this.gameOver = 0;
+  this.gameOver = false;
 }
 
+Game.prototype.resetGame = function() {
+
+}
 
 //NOTE: game will take attackingPlayer's currentString and compare it to defendingPlayer's currentRegex
 Game.prototype.evaluateTurn = function() {
-  while (this.defendingPlayer.currentRegexIndex < this.defendingPlayer.defenseRegexs.length) {
+  this.defendingPlayer.setCurrentRegexIndex(0);
+  var initialLength = this.defendingPlayer.defenseRegexs.length
+  for(var defenseIndex = 0; defenseIndex < initialLength; defenseIndex++){
+    console.log('defense index: ' + this.defendingPlayer.currentRegexIndex);
     if (this.evaluateAttack()) {
       console.log("attack success");
     }
@@ -45,6 +55,14 @@ Game.prototype.evaluateTurn = function() {
       this.defendingPlayer.currentRegexIndex++;
     }
   }
+  if(this.defendingPlayer.defenseRegexs.length === 0){
+    this.gameOver = true;
+  }
+  this.displayPlayerInfo();
+  setTimeout(function(){
+    this.switchPlayers();
+    this.displayPlayerInfo();
+  }.bind(this), 300)
 }
 
 Game.prototype.evaluateAttack = function() {
@@ -57,6 +75,8 @@ Game.prototype.evaluateAttack = function() {
   if (attackSuccess) {
     this.defendingPlayer.removeRegexFromLibrary();
     console.log("critical hit!!");
+    console.log(this.attackingPlayer.playerName);
+    console.log(this.attackingPlayer.defenseRegexs);
     //TODO: balance player energy attack and defense
     //this.modifyEnergy(defendingPlayerRegex.energyCost);
   }
@@ -85,10 +105,22 @@ Game.prototype.switchPlayers = function(){
   }
 }
 
+Game.prototype.getPlayerAtPosition = function(side) {
+  for (var playerIndex = 0; playerIndex < this.players.length; playerIndex++) {
+    var playerAtIndex = this.players[playerIndex];
+    if (playerAtIndex.boardSide === side) {
+      return playerAtIndex
+    }
+  }
+
+}
+
 /*=UI=========================================================================*/
 
 Game.prototype.displayPlayerInfo = function(){
-  var healthBarSegmentSize = 1; //visual scale to make it fit in display
+  if(this.gameOver){
+    alert('Game over');
+  }
   for(var playerIndex = 0; playerIndex < this.players.length; playerIndex++){
     var player = this.players[playerIndex];
 
@@ -96,15 +128,15 @@ Game.prototype.displayPlayerInfo = function(){
     $("#" + player.boardSide + "Box div .energy-bar").empty();
     var healthDisplayChunk = 0;
     //TODO Check for rounding errors
-    while(healthDisplayChunk < player.energy / healthBarSegmentSize){
+    while(healthDisplayChunk < player.energy){
       $("#" + player.boardSide + "Box div .energy-bar").append("|");
       healthDisplayChunk ++;
     }
 
     $("#" + player.boardSide + "-player-options").empty();
     if (this.attackingPlayer === player) {
-      player.attackStrings.forEach(function(attackString){
-        $("#" + player.boardSide + "-player-options").append("<div class='attackRadio'><input type='radio' class='radOpt' name='attacks' value='" + attackString + "'> " + attackString.attackValue + "</div>");
+      player.attackStrings.forEach(function(attackString, attackStringIndex){
+        $("#" + player.boardSide + "-player-options").append("<div class='attackRadio'><input type='radio' class='radOpt' name='attacks' value='" + attackStringIndex + "'> " + attackString.attackValue + "</div>");
         $("#" + player.boardSide + "-player-action").text("Attack");
       });
     }
@@ -120,6 +152,7 @@ Game.prototype.displayPlayerInfo = function(){
 
 /*=PLAYER OBJECT==============================================================*/
 /*======BACKEND===============================================================*/
+//NOTE: boardSide can have value of "left" or "right"
 function Player(name, regexLibrary, stringLibrary, boardSide) {
   this.playerName = name;
   this.energy = 100;
@@ -133,7 +166,6 @@ function Player(name, regexLibrary, stringLibrary, boardSide) {
 }
 
 Player.prototype.getCurrentRegexObject = function() {
-  console.log(this.currentRegexIndex);
   return this.defenseRegexs[this.currentRegexIndex];
 }
 
@@ -143,9 +175,17 @@ Player.prototype.addRegexToLibrary = function(regexInstance) {
 
 Player.prototype.removeRegexFromLibrary = function() {
   // debugger;
-  var removedRegex = this.defenseRegexs.splice(this.currentRegexIndex, 1);
-  console.log(this.defenseRegexs);
-  return removedRegex;
+  console.log(this.playerName + " deleted from regex library index " + this.currentRegexIndex);
+  if(this.currentRegexIndex < this.defenseRegexs.length -1){
+    var removedRegex = this.defenseRegexs.splice(this.currentRegexIndex, 1);
+    console.log(removedRegex);
+    return removedRegex;
+  }
+  else if(this.currentRegexIndex === this.defenseRegexs.length - 1){
+    console.log("popping last element");
+    var poppedRegex = this.defenseRegexs.pop();
+    console.log(poppedRegex);
+  }
 }
 
 Player.prototype.setCurrentRegexIndex = function(regexIndex) {
@@ -235,7 +275,7 @@ function DefenseRegex(regexValue) {
   //NOTE: this is the Javascript object not just a string
   this.defenseObject = new RegExp(regexValue);
   this.energyCost;
-  this.attackName;
+  this.defendName;
   this.stringColor;
   this.stringGraphic;
 }
@@ -258,11 +298,8 @@ DefenseRegex.prototype.drawDefense = function() {
 
 function testGame() {
 
-  makeAttackLibrary(testStringLibrary);
-  makeDefenseLibrary(testRegexLibrary);
-
-  var player1 = new Player("SnakeMan", testRegexLibrary, testStringLibrary, 'left');
-  var player2 = new Player("ManSnake", testRegexLibrary, testStringLibrary, 'right');
+  var player1 = new Player("SnakeMan", makeDefenseLibrary(testRegexLibrary), makeAttackLibrary(testStringLibrary), 'left');
+  var player2 = new Player("ManSnake", makeDefenseLibrary(testRegexLibrary), makeAttackLibrary(testStringLibrary), 'right');
 
   //check health display
   // player1.energy = 1;
@@ -275,10 +312,7 @@ function testGame() {
 
   console.log(testGame);
 
-  testGame.evaluateTurn();
-  testGame.switchPlayers();
-  testGame.evaluateTurn();
-  testGame.displayPlayerInfo();
+  return testGame;
 }
 
 
@@ -289,7 +323,28 @@ function initializeGame() {
 
 $(document).ready(function(){
   // debugger;
-  testGame();
+  var myGame = testGame();
+
+  //TODO: allow for 2 human players
+  $("#left-player-action").click(function() {
+    var leftPlayer = myGame.getPlayerAtPosition("left");
+    console.log(leftPlayer.playerName);
+    var attackIndex = $("input[name=attacks]:checked").val();
+    leftPlayer.setCurrentStringIndex(attackIndex);
+    if (myGame.attackingPlayer.boardSide === "left") {
+      myGame.evaluateTurn();
+    }
+  });
+
+  $("#right-player-action").click(function() {
+    var rightPlayer = myGame.getPlayerAtPosition("right");
+    console.log(rightPlayer.playerName);
+    var attackIndex = $("input[name=attacks]:checked").val();
+    rightPlayer.setCurrentStringIndex(attackIndex);
+    if (myGame.attackingPlayer.boardSide === "right") {
+      myGame.evaluateTurn();
+    }
+  });
 
   // var currentGame = new Game(tierOneLibrary, 'stringInputMode');
   // $('#regex1').val(currentGame.regexLibrary[0]);
