@@ -1,5 +1,5 @@
-var suitImages = ['img/suit1.png','img/suit2.png','img/suit3.png','img/suit4.png']
-var snakeImages = ['img/snake.png','img/snake1.png','img/snake2.png','img/snake3.png']
+var suitImages = ['img/SnakeMan1.png','img/SnakeMan2.png','img/SnakeMan3.png']
+var snakeImages = ['img/ManSnake1.png','img/ManSnake2.png','img/ManSnake3.png']
 var leftIndex = 0;
 var rightIndex = 0;
 var delay = 200;
@@ -12,6 +12,7 @@ function animateLeftPNG() {
   }
   if (leftIndex < suitImages.length){
     $('.avatarLeft').attr('src', suitImages[leftIndex]);
+    $('.avatarLeft').attr('z-index', 20);
     leftIndex ++;
   }
 }
@@ -22,6 +23,7 @@ function animateRightPNG() {
   }
   if (rightIndex < snakeImages.length){
     $('.avatarRight').attr('src', snakeImages[rightIndex]);
+    $('.avatarRight').attr('z-index', 20);
     rightIndex ++;
   }
 }
