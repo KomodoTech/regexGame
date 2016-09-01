@@ -50,7 +50,7 @@ Game.prototype.evaluateTurn = function() {
 
   var initialLength = this.defendingPlayer.defenseRegexs.length;
 
-  // NOTE: loops through regex library backwards
+  // NOTE: loops through the defenseRegex library, evaluating attack on each defense. setInterval calls the callback function every 600ms. The callback function calls the evaluateAttack method and then increments the regex index. If the regexIndex reaches past the last index of the defenseRegexs library, the setInterval callback is cancelled, the defeated regexs are removed from the library, and the players are switched.
   var regexIndex = 0;
   var attackLoop = setInterval(function(){
     if(regexIndex < this.defendingPlayer.defenseRegexs.length){
