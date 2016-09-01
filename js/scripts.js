@@ -108,11 +108,11 @@ Game.prototype.evaluateAttack = function(testString, testRegex, testRegexIndex) 
     defendingPlayerRegex.defeated = true;
     var defenseRegexCost = defendingPlayerRegex.calculateDefenseCost();
     this.defendingPlayer.modifyEnergy(-defenseRegexCost);
-    addToLog("Critical hit!!");
+    addToLog("Critical hit!!", "#52B85E");
     logEvent();
   }
   else {
-    addToLog("Miss!");
+    addToLog("Miss!", "#CF5551");
     logEvent();
   }
   return attackSuccess;
@@ -408,10 +408,12 @@ $(document).ready(function(){
   addToLog('Start!');
   logEvent();
 
-
+  //energy = 100, col-sm-2 is 1/6th of view port
+  var sizeConstant = 600;
   //determine health-bar tick size
   var healthBarSize = parseInt($("#rightBox").width());
-  var healthTickSize = (healthBarSize/100).toString() + "vw"
+  var healthTickSize = (healthBarSize/sizeConstant).toString() + "vw"
+
   $(".energy-bar").css('font-size', healthTickSize);
 
 
