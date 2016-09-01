@@ -44,14 +44,16 @@ body {
   margin: 10px;
   left: 50%;
   transform: translate(-50%);
+  display: inline-block;
 }
 
 .avatarRight {
   position: relative;
   width: auto;
   height: 280px;
-  bottom: 0;
-  margin-left: 50%;
+  margin-top: 20%;
+  margin-right: 5%;
+  float: right;
 }
 
 .avatarLeft {
@@ -84,7 +86,7 @@ img {
   margin-left: 1%;
 }
 
-.btn {
+#left-player-action, #right-player-action, #reset {
   background-color: #9d9daf;
   margin-bottom: 10%;
   position: absolute;
@@ -100,7 +102,7 @@ img {
 }
 
 p {
-  color: #9d9daf;
+  /*color: #9d9daf;*/
   font-family: "Avenir Condensed";
 }
 
@@ -111,7 +113,8 @@ p {
 
 #event-log {
   height:300px;
-  overflow: hidden;
+  overflow-y: scroll;
+  overflow-x: hidden;
   margin-top: 15px;
   background-color: #c9b19c;
 }
@@ -120,4 +123,14 @@ p {
   text-align: center;
   font-size: 2em;
   margin: 0;
+}
+
+#game-display {
+  display: none;
+}
+
+#choose-level-box {
+  background-color: #c9b19c;
+  text-align: center;
+  color: black;
 }

@@ -1,8 +1,8 @@
 /*=VARIABLES==================================================================*/
 
 var logSpan = '';
-var testStringLibrary = ['0', 'coffee', 'portmanteau','pop','boooooh'];
-var testRegexLibrary = ['0', '0|1', '[^01]', '^[01]','^p[o]*p$','^b[o]+h$'];
+var levelOneStringLibrary = ['0', 'coffee', 'portmanteau','pop','boooooh'];
+var levelOneRegexLibrary = ['0', '0|1', '[^01]', '^[01]','^p[o]*p$','^b[o]+h$'];
 
 /*=GENERAL FUNCTIONS==========================================================*/
 function makeAttackLibrary(stringLibrary) {
@@ -47,7 +47,6 @@ Game.prototype.resetGame = function() {
     this.players[playerIndex].defenseRegexs = makeDefenseLibrary(testRegexLibrary);
     this.players[playerIndex].attackStrings = makeAttackLibrary(testStringLibrary);
   }
-  console.log(this.players);
 }
 
 //NOTE: game will take attackingPlayer's currentString and compare it to defendingPlayer's currentRegex
@@ -81,8 +80,6 @@ Game.prototype.evaluateTurn = function() {
     }
   }.bind(this), 600);
 
-  console.log(this.defendingPlayer.playerName + ": " + this.defendingPlayer.energy);
-  console.log(this.attackingPlayer.playerName + ": " + this.attackingPlayer.energy);
 }
 
 
@@ -104,7 +101,6 @@ Game.prototype.evaluateAttack = function(testString, testRegex, testRegexIndex) 
 
   //TODO: print success and fail messages by inserting some html in the DOM
   if (attackSuccess) {
-    console.log(defendingPlayerRegex.defenseObject + ' was hit!');
     defendingPlayerRegex.defeated = true;
     var defenseRegexCost = defendingPlayerRegex.calculateDefenseCost();
     this.defendingPlayer.modifyEnergy(-defenseRegexCost);
@@ -112,7 +108,9 @@ Game.prototype.evaluateAttack = function(testString, testRegex, testRegexIndex) 
     logEvent();
   }
   else {
-    addToLog("Miss!", "#CF5551");
+
+    addToLog("Deflected!", "#CF5551");
+
     logEvent();
   }
   return attackSuccess;
@@ -174,19 +172,22 @@ Game.prototype.displayPlayerInfo = function(){
     $("#" + player.boardSide + "-player-options").empty();
     //TODO: Look into object comparison
     if (this.attackingPlayer === player) {
+      $("#" + player.boardSide + "-player-options").append("Select a string and attack");
       player.attackStrings.forEach(function(attackString){
         $("#" + player.boardSide + "-player-options").append("<div class='attackRadio'><input type='radio' class='radOpt' name='attacks' value='" + attackString.attackValue + "'> " + attackString.attackValue + "</div>");
       });
       $("#" + player.boardSide + "-player-action").text("Attack");
+      $("#" + player.boardSide + "-player-action").show();
     }
     if (this.defendingPlayer === player) {
       $("#" + player.boardSide + "-player-options").append("Remaining Defenses: ");
       player.defenseRegexs.forEach(function(defenseRegex){
         var displayClass = '';
-        if(defenseRegex.defeated){displayClass = 'strikethrough'; console.log('drawing defeated regex');}
+        if(defenseRegex.defeated){displayClass = 'strikethrough';}
         $("#" + player.boardSide + "-player-options").append("<li class='" + displayClass + "'>" + defenseRegex.defenseObject + "</li>");
       });
       $("#" + player.boardSide + "-player-action").text("Defend");
+      $("#" + player.boardSide + "-player-action").hide();
     }
   }
 }
@@ -362,54 +363,74 @@ function addToLog(string, inputColor){
   var color = 'black';
   if(inputColor){color = inputColor;}
   var newSpan = "<span style='color:" + color + "'>" + string + "</span>"
-  console.log(newSpan);
   logSpan += newSpan;
 }
 
 function logEvent(){
-  console.log(logSpan);
   $('#event-log').append("<li>" + logSpan + "</li>");
   logSpan = '';
   $('#event-log').scrollTop($('#event-log li').last().position().top);
 }
 
-function testGame() {
-  //TODO: Game object should take care of keeping track of boardSide
-  var player1 = new Player("SnakeMan", makeDefenseLibrary(testRegexLibrary), makeAttackLibrary(testStringLibrary), 'left');
-  var player2 = new Player("ManSnake", makeDefenseLibrary(testRegexLibrary), makeAttackLibrary(testStringLibrary), 'right');
+function initializeGame(){
+  var level = $("#choose-level").val();
+  var defenseLibrary, attackLibrary;
+
+  switch (level) {
+    case "tutorial":
+      defenseLibrary = tutorialRegexLibrary;
+      attackLibrary = tutorialStringLibrary;
+      break;
+    case "1":
+      defenseLibrary = levelOneRegexLibrary;
+      attackLibrary = levelOneStringLibrary;
+      break;
+    case "2":
+      defenseLibrary = levelTwoRegexLibrary;
+      attackLibrary = levelTwoStringLibrary;
+      break;
+    case "3":
+      defenseLibrary = levelThreeRegexLibrary;
+      attackLibrary = levelThreeStringLibrary;
+      break;
+    case "4":
+      defenseLibrary = levelFourRegexLibrary;
+      attackLibrary = levelFourStringLibrary;
+      break;
+    case "5":
+      defenseLibrary = levelFiveRegexLibrary;
+      attackLibrary = levelFiveStringLibrary;
+      break;
+    default:
+      defenseLibrary = levelOneRegexLibrary;
+      attackLibrary = levelOneStringLibrary;
+
+  }
+
+  var player1 = new Player("SnakeMan", makeDefenseLibrary(defenseLibrary), makeAttackLibrary(attackLibrary), 'left');
+  var player2 = new Player("ManSnake", makeDefenseLibrary(defenseLibrary), makeAttackLibrary(attackLibrary), 'right');
 
   var players = [player1, player2];
 
-  var testGame = new Game(players, "SnakeMan vs ManSnake: A Tale of Two Rejects");
+  var newGame = new Game(players, "SnakeMan vs ManSnake: A Tale of Two Rejects");
+  newGame.displayPlayerInfo();
 
-  testGame.displayPlayerInfo();
-
-  console.log(testGame);
-
-  //Check that cost algorithm is working for regexs
-  for (var playerIndex = 0; playerIndex < testGame.players.length; playerIndex++) {
-    for (var regIndex = 0; regIndex < testGame.players[playerIndex].defenseRegexs.length; regIndex++) {
-      console.log("Regex Energy Cost for " + testGame.players[playerIndex].playerName + "\'s Regex with Value of " + testGame.players[playerIndex].defenseRegexs[regIndex].defenseObject.toString() + ": " + testGame.players[playerIndex].defenseRegexs[regIndex].energyCost);
-    }
-  }
-
-  return testGame;
-}
-
-
-function initializeGame() {
-
+  return newGame;
 }
 
 
 $(document).ready(function(){
-  //Initialize
-  var myGame = testGame();
-  addToLog('Start!');
-  logEvent();
+  var myGame;
+  $("#choose-level-button").click(function(){
+    myGame = initializeGame();
+    $("#choose-level-box").hide();
+    $("#game-display").show();
+    addToLog('Start!');
+    logEvent();
+  })
 
   //energy = 100, col-sm-2 is 1/6th of view port
-  var sizeConstant = 600;
+  var sizeConstant = 100;
   //determine health-bar tick size
   var healthBarSize = parseInt($("#rightBox").width());
   var healthTickSize = (healthBarSize/sizeConstant).toString() + "vw"
@@ -421,9 +442,7 @@ $(document).ready(function(){
   $("#left-player-action").click(function() {
     //TODO: refactor to allow for left right player action functionality to be combined
     var leftPlayer = myGame.getPlayerAtPosition("left");
-    console.log(leftPlayer.playerName);
     var attackValue = $("input[name=attacks]:checked").val();
-    console.log('checked ' + attackValue);
     leftPlayer.attackString = new AttackString(attackValue);
     if (myGame.attackingPlayer.boardSide === "left") {
       myGame.evaluateTurn();
@@ -433,9 +452,7 @@ $(document).ready(function(){
   //TODO: See if we can get index out of jquery radio button selection
   $("#right-player-action").click(function() {
     var rightPlayer = myGame.getPlayerAtPosition("right");
-    console.log(rightPlayer.playerName);
     var attackValue = $("input[name=attacks]:checked").val();
-    console.log('checked ' + attackValue);
     rightPlayer.attackString = new AttackString(attackValue);;
     if (myGame.attackingPlayer.boardSide === "right") {
       myGame.evaluateTurn();
@@ -444,7 +461,6 @@ $(document).ready(function(){
 
   //NOTE: TEST BUTTON
   $("#reset").click(function() {
-    myGame.resetGame();
-    myGame.displayPlayerInfo();
+    location.reload();
   });
 });
