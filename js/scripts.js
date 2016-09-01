@@ -56,14 +56,19 @@ Game.prototype.evaluateTurn = function() {
     console.log('defense index: ' + regexIndex);
     if (this.evaluateAttack(stringAttack, defenseRegex, regexIndex)) {
       console.log("attack success");
+      var defenseRegexCost = defenseRegex.calculateDefenseCost();
+      this.defendingPlayer.modifyEnergy(-defenseRegexCost);
     }
     else {
       console.log("attack failed");
     }
+    this.attackingPlayer.modifyEnergy(-stringEnergy);
   }
 
+  console.log(this.defendingPlayer.playerName + ": " + this.defendingPlayer.energy);
+  console.log(this.attackingPlayer.playerName + ": " + this.attackingPlayer.energy);
   //check if there are any more regex objects left in defender's library
-  if(this.defendingPlayer.defenseRegexs.length === 0){
+  if(this.defendingPlayer.defenseRegexs.length === 0 || this.defendingPlayer.energy <= 0 || this.attackingPlayer.energy <= 0){
     this.gameOver = true;
   }
 
@@ -282,13 +287,13 @@ AttackString.prototype.drawAttack = function() {
 function DefenseRegex(regexValue) {
   //NOTE: this is the Javascript object not just a string
   this.defenseObject = new RegExp(regexValue);
-  this.energyCost;
+  this.energyCost = this.calculateDefenseCost();
   this.defendName;
   this.stringColor;
   this.stringGraphic;
 }
 
-
+// cost of regex calculated by number of non alpha numeric characters in expression
 DefenseRegex.prototype.calculateDefenseCost = function() {
   var regexString = this.defenseObject.toString();
   var specialCharCounter = 0;
@@ -297,8 +302,8 @@ DefenseRegex.prototype.calculateDefenseCost = function() {
       specialCharCounter++;
     }
   }
-  this.energyCost = this.energyCost - 2; //subtract 2 for the / characters
-  console.log("energyCost: " + this.energyCost);
+  var regexCost = specialCharCounter - 2; //subtract 2 for the / characters
+  return regexCost;
 }
 
 
@@ -324,7 +329,13 @@ function testGame() {
   testGame.displayPlayerInfo();
 
   console.log(testGame);
-  testGame.players[0].defenseRegexs[0].calculateDefenseCost();
+
+  //Check that cost algorithm is working for regexs
+  for (var playerIndex = 0; playerIndex < testGame.players.length; playerIndex++) {
+    for (var regIndex = 0; regIndex < testGame.players[playerIndex].defenseRegexs.length; regIndex++) {
+      console.log("Regex Energy Cost for " + testGame.players[playerIndex].playerName + "\'s Regex with Value of " + testGame.players[playerIndex].defenseRegexs[regIndex].defenseObject.toString() + ": " + testGame.players[playerIndex].defenseRegexs[regIndex].energyCost);
+    }
+  }
 
   return testGame;
 }
