@@ -94,8 +94,10 @@ Game.prototype.evaluateTurn = function() {
         this.gameOver = true;
         this.endGame();
       }
-      this.switchPlayers();
-      this.displayPlayerInfo();
+      else {
+        this.switchPlayers();
+        this.displayPlayerInfo();
+      }
     }
   }.bind(this), 600);
 
@@ -165,6 +167,8 @@ Game.prototype.getPlayerAtPosition = function(side) {
 }
 
 Game.prototype.endGame = function () {
+  $("#left-player-action").hide();
+  $("#right-player-action").hide();
   addToLog("Level " + this.level + " completed - " + this.winner.playerName + " won!");
   logEvent();
 };
@@ -469,6 +473,7 @@ $(document).ready(function(){
     //TODO: refactor to allow for left right player action functionality to be combined
     var leftPlayer = myGame.getPlayerAtPosition("left");
     var attackValue = $("input[name=attacks]:checked").val();
+    if(!attackValue){return;}
     leftPlayer.attackString = new AttackString(attackValue);
     if (myGame.attackingPlayer.boardSide === "left") {
       myGame.evaluateTurn();
@@ -479,6 +484,7 @@ $(document).ready(function(){
   $("#right-player-action").click(function() {
     var rightPlayer = myGame.getPlayerAtPosition("right");
     var attackValue = $("input[name=attacks]:checked").val();
+    if(!attackValue){return;}
     rightPlayer.attackString = new AttackString(attackValue);;
     if (myGame.attackingPlayer.boardSide === "right") {
       myGame.evaluateTurn();
