@@ -155,6 +155,8 @@ Game.prototype.displayPlayerInfo = function(){
   if (this.gameOver) {
     alert('Game over');
   }
+
+
   for (var playerIndex = 0; playerIndex < this.players.length; playerIndex++) {
     var player = this.players[playerIndex];
 
@@ -280,7 +282,8 @@ function AttackString(stringValue) {
 
 
 AttackString.prototype.calculateAttackCost = function() {
-  var attackCost = this.attackValue.length; //TODO: calculate energy cost with something more algorithmically
+  var attackCost = this.attackValue.length; //TODO: calculate energy cost more algorithmically
+  console.log("attackCost: " + attackCost);
   return attackCost;
 }
 
@@ -400,10 +403,17 @@ function initializeGame() {
 
 
 $(document).ready(function(){
-  // debugger;
+  //Initialize
   var myGame = testGame();
   addToLog('Start!');
   logEvent();
+
+
+  //determine health-bar tick size
+  var healthBarSize = parseInt($("#rightBox").width());
+  var healthTickSize = (healthBarSize/100).toString() + "vw"
+  $(".energy-bar").css('font-size', healthTickSize);
+
 
   //TODO: allow for 2 human players
   $("#left-player-action").click(function() {

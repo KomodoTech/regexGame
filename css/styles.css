@@ -10,8 +10,8 @@ body {
 #leftBox {
   color: #9d9daf;
   background-color: #3e3e5b;
-  /*margin-left: 5%;*/
-  border-radius: 0px 0px 8px 8px;
+  margin-left: 5%;
+  border-radius: 0px 0px 100px 100px;
   width: 100%;
   height: 380px;
 
@@ -20,8 +20,8 @@ body {
 #rightBox {
   color: #9d9daf;
   background-color: #3e3e5b;
-  /*margin-left: 20%;*/
-  border-radius: 0px 0px 8px 8px;
+  margin-right: 5%;
+  border-radius: 0px 0px 100px 100px;
   width: 100%;
   height: 380px;
 }
@@ -95,10 +95,7 @@ img {
 }
 
 .energy-bar {
-  color: red;
-  font-size: 0.9em;
-  text-align: left;
-  /*margin-left: 10%;*/
+  color: #FF236A;
 }
 
 p {
