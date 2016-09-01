@@ -1,6 +1,6 @@
 /*=VARIABLES==================================================================*/
 
-
+var logSpan = '';
 var testStringLibrary = ['0', 'coffee', 'portmanteau','pop','boooooh'];
 var testRegexLibrary = ['0', '0|1', '[^01]', '^[01]','^p[o]*p$','^b[o]+h$'];
 
@@ -38,13 +38,24 @@ function Game(players, gameTitle) {
 }
 
 Game.prototype.resetGame = function() {
-
+  if(this.gameOver) {
+    this.gameOver = false;
+  }
+  this.attackingPlayer.energy = 100;
+  this.defendingPlayer.energy = 100;
+  for (var playerIndex = 0; playerIndex < this.players.length; playerIndex++) {
+    this.players[playerIndex].defenseRegexs = makeDefenseLibrary(testRegexLibrary);
+    this.players[playerIndex].attackStrings = makeAttackLibrary(testStringLibrary);
+  }
+  console.log(this.players);
 }
 
 //NOTE: game will take attackingPlayer's currentString and compare it to defendingPlayer's currentRegex
 Game.prototype.evaluateTurn = function() {
   var stringAttack = this.attackingPlayer.attackString;
-  logEvent(this.attackingPlayer.playerName + " attacks with " + stringAttack.attackValue + "!");
+  addToLog(this.attackingPlayer.playerName + " attacks with ");
+  addToLog(stringAttack.attackValue)
+  logEvent();
   var stringEnergy = this.attackingPlayer.attackString.energyCost;
   this.attackingPlayer.modifyEnergy(-stringEnergy);
 
@@ -72,7 +83,6 @@ Game.prototype.evaluateTurn = function() {
 
   console.log(this.defendingPlayer.playerName + ": " + this.defendingPlayer.energy);
   console.log(this.attackingPlayer.playerName + ": " + this.attackingPlayer.energy);
-  //check if there are any more regex objects left in defender's library
 }
 
 
@@ -80,8 +90,14 @@ Game.prototype.evaluateAttack = function(testString, testRegex, testRegexIndex) 
   // debugger;
   var attackingPlayerString = testString;
   var defendingPlayerRegex = testRegex;
-  var color = attackingPlayerString.stringColor;
-  logEvent(this.defendingPlayer.playerName + " defends against " + testString.attackValue + " with " + testRegex.defenseObject + "...", color);
+  var attackColor = attackingPlayerString.stringColor;
+  var defenseColor = defendingPlayerRegex.regexColor;
+  addToLog(this.defendingPlayer.playerName + " defends against ")
+  addToLog(testString.attackValue, attackColor);
+  addToLog(" with ")
+  addToLog(testRegex.defenseObject, defenseColor);
+  addToLog("...");
+  logEvent();
 
   // check to see if regex (defense) accepts string (attacks)
   var attackSuccess = this.testStringWithRegex(attackingPlayerString.attackValue, defendingPlayerRegex.defenseObject);
@@ -90,12 +106,14 @@ Game.prototype.evaluateAttack = function(testString, testRegex, testRegexIndex) 
   if (attackSuccess) {
     console.log(defendingPlayerRegex.defenseObject + ' was hit!');
     defendingPlayerRegex.defeated = true;
-    logEvent("critical hit!!");
     var defenseRegexCost = defendingPlayerRegex.calculateDefenseCost();
     this.defendingPlayer.modifyEnergy(-defenseRegexCost);
+    addToLog("Critical hit!!");
+    logEvent();
   }
   else {
-    logEvent("attack deflected!");
+    addToLog("Miss!");
+    logEvent();
   }
   return attackSuccess;
 }
@@ -238,7 +256,7 @@ Player.prototype.modifyEnergy = function(energyChangeAmount) {
 
 /*======UI/DISPLAY====================================================================*/
 Player.prototype.drawPlayer = function() {
-//TODO: make drawPlayer
+//TODO: make drawPlayer Talk to imgscript somehow
   console.log('drawing player');
 }
 
@@ -256,7 +274,7 @@ function AttackString(stringValue) {
   this.attackValue = stringValue;
   this.energyCost = this.calculateAttackCost();
   this.attackName;
-  this.stringColor;
+  this.stringColor = this.generateAttackAppearance();
   this.stringGraphic;
 }
 
@@ -269,7 +287,7 @@ AttackString.prototype.calculateAttackCost = function() {
 //NOTE: generate color based on first char in string
 AttackString.prototype.generateAttackAppearance = function() {
   // debugger;
-  var firstLetterAscii = this.stringValue.charCodeAt(0);
+  var firstLetterAscii = this.attackValue.charCodeAt(0);
   var firstLetterAsciiLength = firstLetterAscii.toString().length;
 
   var stringColor = "#" + firstLetterAscii.toString();
@@ -280,6 +298,7 @@ AttackString.prototype.generateAttackAppearance = function() {
   }
 
   this.stringColor = stringColor;
+
   return stringColor;
 }
 
@@ -298,8 +317,8 @@ function DefenseRegex(regexValue) {
   this.defenseObject = new RegExp(regexValue);
   this.energyCost = this.calculateDefenseCost();
   this.defendName;
-  this.stringColor;
-  this.stringGraphic;
+  this.regexColor = this.generateDefenseAppearance();
+  this.regexGraphic;
   this.defeated = false;
 }
 
@@ -318,7 +337,17 @@ DefenseRegex.prototype.calculateDefenseCost = function() {
 
 
 DefenseRegex.prototype.generateDefenseAppearance = function() {
+  var firstLetterAscii = this.defenseObject.toString().charCodeAt(1);
+  var firstLetterAsciiLength = firstLetterAscii.toString().length;
 
+  var stringColor = "#" + firstLetterAscii.toString();
+
+  for (var digitIndex = firstLetterAsciiLength; digitIndex < 6; digitIndex++) {
+    randomColorDigit = Math.floor(Math.random() * 9);
+    stringColor = stringColor + randomColorDigit.toString();
+  }
+  this.stringColor = stringColor;
+  return stringColor;
 }
 
 /*======UI/DISPLAY====================================================================*/
@@ -326,10 +355,18 @@ DefenseRegex.prototype.drawDefense = function() {
   this.generateDefenseAppearance();
 }
 
-function logEvent(string, inputColor){
-  var color;
+function addToLog(string, inputColor){
+  var color = 'black';
   if(inputColor){color = inputColor;}
-  $('#event-log').append("<li style='color:" + color + "'>" + string + "</li>");
+  var newSpan = "<span style='color:" + color + "'>" + string + "</span>"
+  console.log(newSpan);
+  logSpan += newSpan;
+}
+
+function logEvent(){
+  console.log(logSpan);
+  $('#event-log').append("<li>" + logSpan + "</li>");
+  logSpan = '';
   $('#event-log').scrollTop($('#event-log li').last().position().top);
 }
 
@@ -365,7 +402,8 @@ function initializeGame() {
 $(document).ready(function(){
   // debugger;
   var myGame = testGame();
-  logEvent('Start!');
+  addToLog('Start!');
+  logEvent();
 
   //TODO: allow for 2 human players
   $("#left-player-action").click(function() {
@@ -392,31 +430,9 @@ $(document).ready(function(){
     }
   });
 
-  // var currentGame = new Game(tierOneLibrary, 'stringInputMode');
-  // $('#regex1').val(currentGame.regexLibrary[0]);
-  // var regexIndex = 0;
-  //
-  // $('#test-regex').click(function(){
-  //   $('#regex1').val(currentGame.regexLibrary[regexIndex]);
-  //   var regexTest = currentGame.regexLibrary[regexIndex]
-  //   var input = $('#user-string').val();
-  //
-  //   if(currentGame.mode === 'stringInputMode'){
-  //     var result = currentGame.testRegex(regexTest, input);
-  //   } else {
-  //     var result = currentGame.testRegex(input,currentGame.regexLibrary[regexIndex]);
-  //   }
-  //
-  //   if(result){
-  //     console.log('correct');
-  //     regexIndex++;
-  //     $('#regex1').val(currentGame.regexLibrary[regexIndex]);
-  //     if(regexIndex === currentGame.regexLibrary.length - 1){
-  //       currentGame = new Game(tierTwoLibraryStrings, 'regexInputMode');
-  //       regexIndex = 0;
-  //     }
-  //   } else {
-  //     console.log('wrong');
-  //   }
-  // });
+  //NOTE: TEST BUTTON
+  $("#reset").click(function() {
+    myGame.resetGame();
+    myGame.displayPlayerInfo();
+  });
 });

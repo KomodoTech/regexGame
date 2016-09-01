@@ -115,6 +115,7 @@ p {
   height:300px;
   overflow: hidden;
   margin-top: 15px;
+  background-color: #c9b19c;
 }
 
 #event-log li {
