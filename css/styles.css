@@ -10,59 +10,60 @@ body {
 #leftBox {
   color: #9d9daf;
   background-color: #3e3e5b;
-  margin-left: 5%;
+  /*margin-left: 5%;*/
   border-radius: 0px 0px 8px 8px;
   width: 100%;
   height: 380px;
+
 }
 
 #rightBox {
   color: #9d9daf;
   background-color: #3e3e5b;
-  margin-left: 20%;
+  /*margin-left: 20%;*/
   border-radius: 0px 0px 8px 8px;
   width: 100%;
   height: 380px;
 }
 
 #battleBox {
-  height: 400px;
-  width: 600px;
-  margin-left: 2%;
-  margin-right: 2%;
+  height: 500px;
+  width: 700px;
+  /*margin-left: 2%;
+  margin-right: 2%;*/
   border-radius: 0px 0px 8px 8px;
 }
 
 .battleField {
+  background-image: url("../img/Background.png");
+  background-repeat: no-repeat;
+  background-size: cover;
   position: absolute;
   width: 100%;
-  height: 360px;
+  height: 100%;
+  margin: 10px;
+  left: 50%;
+  transform: translate(-50%);
 }
 
 .avatarRight {
   position: relative;
   width: auto;
   height: 280px;
-  margin-top: 4%;
-  z-index: 100;
-  margin-left: 23%;
+  bottom: 0;
+  margin-left: 50%;
 }
 
-.avatarLeft{
+.avatarLeft {
   position: relative;
   width: auto;
   height: 280px;
-  margin-top: 30px;
-  z-index: 100;
+  margin-top: 20%;
   margin-left: 5%;
-
-
 }
 
-
-#container {
-  text-align: center;
-  width: 1340px;
+.container {
+width: 100%;
 }
 
 h4 {
@@ -80,7 +81,7 @@ li, .attackRadio {
 }
 
 img {
-  margin-left: 1%;
+  /*margin-left: 1%;*/
 }
 
 .btn {
@@ -88,6 +89,7 @@ img {
   margin-bottom: 3%;
   position: absolute;
   bottom: 0;
+  left: 50%;
   transform: translate(-50%);
   text-align: right;
 }
@@ -96,7 +98,7 @@ img {
   color: red;
   font-size: 0.9em;
   text-align: left;
-  margin-left: 10%;
+  /*margin-left: 10%;*/
 }
 
 p {

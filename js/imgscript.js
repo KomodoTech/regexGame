@@ -12,7 +12,6 @@ function animateLeftPNG() {
   }
   if (leftIndex < suitImages.length){
     $('.avatarLeft').attr('src', suitImages[leftIndex]);
-    $('.avatarLeft').attr('z-index', 20);
     leftIndex ++;
   }
 }
@@ -23,7 +22,6 @@ function animateRightPNG() {
   }
   if (rightIndex < snakeImages.length){
     $('.avatarRight').attr('src', snakeImages[rightIndex]);
-    $('.avatarRight').attr('z-index', 20);
     rightIndex ++;
   }
 }
