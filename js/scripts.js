@@ -164,10 +164,7 @@ Game.prototype.getPlayerAtPosition = function(side) {
 /*======UI====================================================================*/
 
 Game.prototype.displayPlayerInfo = function(){
-  //TODO: move this check somewhere else so that alert doesn't get triggered twice
-  if (this.gameOver) {
-    alert('Game over');
-  }
+
 
 
   for (var playerIndex = 0; playerIndex < this.players.length; playerIndex++) {
@@ -204,6 +201,15 @@ Game.prototype.displayPlayerInfo = function(){
       $("#" + player.boardSide + "-player-action").text("Defend");
       $("#" + player.boardSide + "-player-action").hide();
     }
+  }
+  //TODO: move this check somewhere else so that alert doesn't get triggered twice
+  if (this.gameOver) {
+    for (var player = 0; player < this.players.length; player++) {
+      if (this.players[player].energy <= 0 || this.players[player].defenseRegexs.length === 0) {
+          $("#" + this.players[player].boardSide + "Box div .energy-bar").empty();
+      }
+    }
+    alert('Game over');
   }
 }
 
@@ -350,7 +356,7 @@ DefenseRegex.prototype.calculateDefenseCost = function() {
       specialCharCounter++;
     }
   }
-  var regexCost = specialCharCounter - 2; //subtract 2 for the / characters
+  var regexCost = (specialCharCounter - 2) * 5; //subtract 2 for the / characters
   return regexCost;
 }
 
