@@ -110,3 +110,13 @@ p {
   text-decoration: line-through;
   color: red;
 }
+
+#event-log {
+  height:300px;
+  overflow: hidden;
+  margin-top: 15px;
+}
+
+#event-log li {
+  margin: 0;
+}

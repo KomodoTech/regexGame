@@ -44,7 +44,7 @@ Game.prototype.resetGame = function() {
 //NOTE: game will take attackingPlayer's currentString and compare it to defendingPlayer's currentRegex
 Game.prototype.evaluateTurn = function() {
   var stringAttack = this.attackingPlayer.attackString;
-  console.log('attacking with ' + stringAttack.attackValue)
+  logEvent(this.attackingPlayer.playerName + " attacks with " + stringAttack.attackValue + "!");
   var stringEnergy = this.attackingPlayer.attackString.energyCost;
   this.attackingPlayer.modifyEnergy(-stringEnergy);
 
@@ -80,6 +80,8 @@ Game.prototype.evaluateAttack = function(testString, testRegex, testRegexIndex) 
   // debugger;
   var attackingPlayerString = testString;
   var defendingPlayerRegex = testRegex;
+  var color = attackingPlayerString.stringColor;
+  logEvent(this.defendingPlayer.playerName + " defends against " + testString.attackValue + " with " + testRegex.defenseObject + "...", color);
 
   // check to see if regex (defense) accepts string (attacks)
   var attackSuccess = this.testStringWithRegex(attackingPlayerString.attackValue, defendingPlayerRegex.defenseObject);
@@ -88,12 +90,12 @@ Game.prototype.evaluateAttack = function(testString, testRegex, testRegexIndex) 
   if (attackSuccess) {
     console.log(defendingPlayerRegex.defenseObject + ' was hit!');
     defendingPlayerRegex.defeated = true;
-    console.log("critical hit!!");
+    logEvent("critical hit!!");
     var defenseRegexCost = defendingPlayerRegex.calculateDefenseCost();
     this.defendingPlayer.modifyEnergy(-defenseRegexCost);
   }
   else {
-    console.log("deflected!");
+    logEvent("attack deflected!");
   }
   return attackSuccess;
 }
@@ -324,6 +326,12 @@ DefenseRegex.prototype.drawDefense = function() {
   this.generateDefenseAppearance();
 }
 
+function logEvent(string, inputColor){
+  var color;
+  if(inputColor){color = inputColor;}
+  $('#event-log').append("<li style='color:" + color + "'>" + string + "</li>");
+  $('#event-log').scrollTop($('#event-log li').last().position().top);
+}
 
 function testGame() {
   //TODO: Game object should take care of keeping track of boardSide
@@ -357,6 +365,7 @@ function initializeGame() {
 $(document).ready(function(){
   // debugger;
   var myGame = testGame();
+  logEvent('Start!');
 
   //TODO: allow for 2 human players
   $("#left-player-action").click(function() {
