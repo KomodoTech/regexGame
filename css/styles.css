@@ -10,7 +10,6 @@ body {
 #leftBox {
   color: #9d9daf;
   background-color: #3e3e5b;
-  float: left;
   margin-left: 5%;
   border-radius: 0px 0px 8px 8px;
   width: 100%;
@@ -20,7 +19,6 @@ body {
 #rightBox {
   color: #9d9daf;
   background-color: #3e3e5b;
-  float: left;
   margin-left: 20%;
   border-radius: 0px 0px 8px 8px;
   width: 100%;
@@ -104,4 +102,9 @@ img {
 p {
   color: #9d9daf;
   font-family: "Avenir Condensed";
+}
+
+.strikethrough {
+  text-decoration: line-through;
+  color: red;
 }

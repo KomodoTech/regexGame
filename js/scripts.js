@@ -51,19 +51,21 @@ Game.prototype.evaluateTurn = function() {
   var initialLength = this.defendingPlayer.defenseRegexs.length;
 
   // NOTE: loops through regex library backwards
-  for(var regexIndex = initialLength - 1; regexIndex >= 0; regexIndex--) {
-    var defenseRegex = this.defendingPlayer.defenseRegexs[regexIndex];
-    console.log('defense index: ' + regexIndex);
-    if (this.evaluateAttack(stringAttack, defenseRegex, regexIndex)) {
-      console.log("attack success");
-      var defenseRegexCost = defenseRegex.calculateDefenseCost();
-      this.defendingPlayer.modifyEnergy(-defenseRegexCost);
+  var regexIndex = 0;
+  var attackLoop = setInterval(function(){
+    if(regexIndex < this.defendingPlayer.defenseRegexs.length){
+      var defenseRegex = this.defendingPlayer.defenseRegexs[regexIndex];
+      this.evaluateAttack(stringAttack, defenseRegex, regexIndex);
+      this.displayPlayerInfo();
+      regexIndex++;
     }
-    else {
-      console.log("attack failed");
+    else if(regexIndex >= this.defendingPlayer.defenseRegexs.length){
+      clearInterval(attackLoop);
+      this.switchPlayers();
+      this.defendingPlayer.removeAllDefeatedRegexs();
+      this.displayPlayerInfo();
     }
-    this.attackingPlayer.modifyEnergy(-stringEnergy);
-  }
+  }.bind(this), 300);
 
   console.log(this.defendingPlayer.playerName + ": " + this.defendingPlayer.energy);
   console.log(this.attackingPlayer.playerName + ": " + this.attackingPlayer.energy);
@@ -71,13 +73,6 @@ Game.prototype.evaluateTurn = function() {
   if(this.defendingPlayer.defenseRegexs.length === 0 || this.defendingPlayer.energy <= 0 || this.attackingPlayer.energy <= 0){
     this.gameOver = true;
   }
-
-  //pause to allow user to see that something was removed
-  this.displayPlayerInfo();
-  setTimeout(function(){
-    this.switchPlayers();
-    this.displayPlayerInfo();
-  }.bind(this), 800) //bind sets the value of 'this' within the callback function to the game
 }
 
 
@@ -92,8 +87,10 @@ Game.prototype.evaluateAttack = function(testString, testRegex, testRegexIndex) 
   //TODO: print success and fail messages by inserting some html in the DOM
   if (attackSuccess) {
     console.log(defendingPlayerRegex.defenseObject + ' was hit!');
-    this.defendingPlayer.removeRegexFromLibrary(testRegexIndex);
+    defendingPlayerRegex.defeated = true;
     console.log("critical hit!!");
+    var defenseRegexCost = defendingPlayerRegex.calculateDefenseCost();
+    this.defendingPlayer.modifyEnergy(-defenseRegexCost);
   }
   else {
     console.log("deflected!");
@@ -157,15 +154,17 @@ Game.prototype.displayPlayerInfo = function(){
     if (this.attackingPlayer === player) {
       player.attackStrings.forEach(function(attackString){
         $("#" + player.boardSide + "-player-options").append("<div class='attackRadio'><input type='radio' class='radOpt' name='attacks' value='" + attackString.attackValue + "'> " + attackString.attackValue + "</div>");
-        $("#" + player.boardSide + "-player-action").text("Attack");
       });
+      $("#" + player.boardSide + "-player-action").text("Attack");
     }
     if (this.defendingPlayer === player) {
       $("#" + player.boardSide + "-player-options").append("Remaining Defenses: ");
       player.defenseRegexs.forEach(function(defenseRegex){
-        $("#" + player.boardSide + "-player-options").append("<li>" + defenseRegex.defenseObject + "</li>");
-        $("#" + player.boardSide + "-player-action").text("Defend");
+        var displayClass = '';
+        if(defenseRegex.defeated){displayClass = 'strikethrough'; console.log('drawing defeated regex');}
+        $("#" + player.boardSide + "-player-options").append("<li class='" + displayClass + "'>" + defenseRegex.defenseObject + "</li>");
       });
+      $("#" + player.boardSide + "-player-action").text("Defend");
     }
   }
 }
@@ -198,6 +197,14 @@ Player.prototype.removeRegexFromLibrary = function(regexIndex) {
   // debugger;
   var removedRegex = this.defenseRegexs.splice(regexIndex, 1);
   return removedRegex;
+}
+
+Player.prototype.removeAllDefeatedRegexs = function() {
+  for(var regexIndex = this.defenseRegexs.length - 1; regexIndex >= 0; regexIndex--){
+    if(this.defenseRegexs[regexIndex].defeated){
+      var removedRegex = this.defenseRegexs.splice(regexIndex, 1);
+    }
+  }
 }
 
 Player.prototype.setCurrentRegexIndex = function(regexIndex) {
@@ -291,6 +298,7 @@ function DefenseRegex(regexValue) {
   this.defendName;
   this.stringColor;
   this.stringGraphic;
+  this.defeated = false;
 }
 
 // cost of regex calculated by number of non alpha numeric characters in expression
