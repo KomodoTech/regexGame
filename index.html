@@ -12,7 +12,28 @@
   <link href="css/styles.css" rel="stylesheet" type="text/css">
 </head>
   <body>
-    <div class="container">
+    <!-- Page initializes with a select box for picking level -->
+    <div id='choose-level-box' class='jumbotron'>
+      <h1>SnakeMan vs. ManSnake</h1>
+      <h2>A tale of two rejex</h2>
+      <p>Attack your opponent with magical strings and attempt to bypass his regex defenses. The game ends when either player runs out of defenses or health.
+      <div class='form-inline'>
+        <label>Select level:</label>
+        <select id='choose-level' class='form-control'>
+          <option>tutorial</option>
+          <option>1</option>
+          <option>2</option>
+          <option>3</option>
+          <option>4</option>
+          <option>5</option>
+        </select>
+        <button id='choose-level-button' class='btn btn-success'>Start!</button>
+      </div>
+    </div>
+
+    <!-- Main game display -->
+    <div class="container" id='game-display'>
+
       <div class='row'>
         <!-- //Left player options -->
         <div class='col-sm-2'>
