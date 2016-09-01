@@ -207,6 +207,7 @@ Game.prototype.displayPlayerInfo = function(){
     for (var player = 0; player < this.players.length; player++) {
       if (this.players[player].energy <= 0 || this.players[player].defenseRegexs.length === 0) {
           $("#" + this.players[player].boardSide + "Box div .energy-bar").empty();
+          $("#" + this.players[player].boardSide + "Box div .energy-bar").append("YOU HAVE LOST");
       }
     }
     alert('Game over');
