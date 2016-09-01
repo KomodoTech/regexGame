@@ -1,8 +1,23 @@
 /*=VARIABLES==================================================================*/
 
 
-var testStringLibrary = ['0', 'coffee', 'portmanteau','pop','boooooh'];
-var testRegexLibrary = ['0', '0|1', '[^01]', '^[01]','^p[o]*p$','^b[o]+h$'];
+var tutorialStringLibrary = ['log','bog','file','pen','mud'];
+var tutorialRegexLibrary = ['o', 'i', 'e','l|g','d|u'];
+
+var levelOneStringLibrary = ['log','bog','file','pen','mud'];
+var levelOneRegexLibrary = ['o|b', 'i|e','p|m','mu|bo','ile|ud'];
+
+var levelTwoStringLibrary = ['slither','slime','knife','stab','blood'];
+var levelTwoRegexLibrary = ['^s','^k','e$','[^l]','^b[^a]'];
+
+var levelThreeStringLibrary = ['coffee', 'frog', 'green', 'fog', 'portfolio'];
+var levelThreeRegexLibrary = ['[^i]+ee', '^f(o)g$', 'o*o$', '^f(ro|o)g*' '[f*][o]'];
+
+var levelFourStringLibrary = ['kick','punch','tie','hatch','slice'];
+var levelFourRegexLibrary = ['[ch]$','^k.*k$','^h.*h$','^[^i]*$','^[^aln]*$'];
+
+var levelFiveStringLibrary = ['cold blooded', 'foggy', 'roundhouse', 'sanguine', 'cattail'];
+var levelFiveRegexLibrary = ['[d]o*|[og]y$', '^s.*e$|c.*l$','^[^g|u]*$','gg|oo|tt^c.*$l',];
 
 /*=GENERAL FUNCTIONS==========================================================*/
 function makeAttackLibrary(stringLibrary) {
