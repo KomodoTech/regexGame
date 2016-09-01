@@ -38,7 +38,16 @@ function Game(players, gameTitle) {
 }
 
 Game.prototype.resetGame = function() {
-
+  if(this.gameOver) {
+    this.gameOver = false;
+  }
+  this.attackingPlayer.energy = 100;
+  this.defendingPlayer.energy = 100;
+  for (var playerIndex = 0; playerIndex < this.players.length; playerIndex++) {
+    this.players[playerIndex].defenseRegexs = makeDefenseLibrary(testRegexLibrary);
+    this.players[playerIndex].attackStrings = makeAttackLibrary(testStringLibrary);
+  }
+  console.log(this.players);
 }
 
 //NOTE: game will take attackingPlayer's currentString and compare it to defendingPlayer's currentRegex
@@ -72,7 +81,6 @@ Game.prototype.evaluateTurn = function() {
 
   console.log(this.defendingPlayer.playerName + ": " + this.defendingPlayer.energy);
   console.log(this.attackingPlayer.playerName + ": " + this.attackingPlayer.energy);
-  //check if there are any more regex objects left in defender's library
 }
 
 
@@ -383,31 +391,9 @@ $(document).ready(function(){
     }
   });
 
-  // var currentGame = new Game(tierOneLibrary, 'stringInputMode');
-  // $('#regex1').val(currentGame.regexLibrary[0]);
-  // var regexIndex = 0;
-  //
-  // $('#test-regex').click(function(){
-  //   $('#regex1').val(currentGame.regexLibrary[regexIndex]);
-  //   var regexTest = currentGame.regexLibrary[regexIndex]
-  //   var input = $('#user-string').val();
-  //
-  //   if(currentGame.mode === 'stringInputMode'){
-  //     var result = currentGame.testRegex(regexTest, input);
-  //   } else {
-  //     var result = currentGame.testRegex(input,currentGame.regexLibrary[regexIndex]);
-  //   }
-  //
-  //   if(result){
-  //     console.log('correct');
-  //     regexIndex++;
-  //     $('#regex1').val(currentGame.regexLibrary[regexIndex]);
-  //     if(regexIndex === currentGame.regexLibrary.length - 1){
-  //       currentGame = new Game(tierTwoLibraryStrings, 'regexInputMode');
-  //       regexIndex = 0;
-  //     }
-  //   } else {
-  //     console.log('wrong');
-  //   }
-  // });
+  //NOTE: TEST BUTTON
+  $("#reset").click(function() {
+    myGame.resetGame();
+    myGame.displayPlayerInfo();
+  });
 });
