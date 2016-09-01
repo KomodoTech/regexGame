@@ -44,12 +44,14 @@ function makeDefenseLibrary(regexLibrary) {
 
 /*=GAME OBJECT================================================================*/
 /*=====BACKEND================================================================*/
-function Game(players, gameTitle) {
+function Game(players, gameTitle, level) {
   this.players = players;
   this.attackingPlayer = players[0]; //NOTE: ASSUME TWO PLAYERS FOR NOW
   this.defendingPlayer = players[1];
   this.gameName = gameTitle; //"SnakeMan vs ManSnake: A Tale of Rejects"
   this.gameOver = false;
+  this.winner;
+  this.level = level;
 }
 
 Game.prototype.resetGame = function() {
@@ -88,7 +90,9 @@ Game.prototype.evaluateTurn = function() {
       clearInterval(attackLoop);
       this.defendingPlayer.removeAllDefeatedRegexs();
       if(this.defendingPlayer.defenseRegexs.length === 0 || this.defendingPlayer.energy <= 0 || this.attackingPlayer.energy <= 0){
+        this.winner = this.attackingPlayer;
         this.gameOver = true;
+        this.endGame();
       }
       this.switchPlayers();
       this.displayPlayerInfo();
@@ -158,15 +162,16 @@ Game.prototype.getPlayerAtPosition = function(side) {
       return playerAtIndex
     }
   }
-
 }
+
+Game.prototype.endGame = function () {
+  addToLog("Level " + this.level + " completed - " + this.winner.playerName + " won!");
+  logEvent();
+};
 
 /*======UI====================================================================*/
 
 Game.prototype.displayPlayerInfo = function(){
-
-
-
   for (var playerIndex = 0; playerIndex < this.players.length; playerIndex++) {
     var player = this.players[playerIndex];
 
@@ -210,7 +215,6 @@ Game.prototype.displayPlayerInfo = function(){
           $("#" + this.players[player].boardSide + "Box div .energy-bar").append("YOU HAVE LOST");
       }
     }
-    alert('Game over');
   }
 }
 
@@ -305,7 +309,7 @@ function AttackString(stringValue) {
 
 
 AttackString.prototype.calculateAttackCost = function() {
-  var attackCost = this.attackValue.length; //TODO: calculate energy cost more algorithmically
+  var attackCost = (this.attackValue.length) * 5; //TODO: calculate energy cost more algorithmically
   console.log("attackCost: " + attackCost);
   return attackCost;
 }
@@ -434,7 +438,7 @@ function initializeGame(){
 
   var players = [player1, player2];
 
-  var newGame = new Game(players, "SnakeMan vs ManSnake: A Tale of Two Rejects");
+  var newGame = new Game(players, "SnakeMan vs ManSnake: A Tale of Two Rejects", level);
   newGame.displayPlayerInfo();
 
   return newGame;
