@@ -61,18 +61,18 @@ Game.prototype.evaluateTurn = function() {
     }
     else if(regexIndex >= this.defendingPlayer.defenseRegexs.length){
       clearInterval(attackLoop);
-      this.switchPlayers();
       this.defendingPlayer.removeAllDefeatedRegexs();
+      if(this.defendingPlayer.defenseRegexs.length === 0 || this.defendingPlayer.energy <= 0 || this.attackingPlayer.energy <= 0){
+        this.gameOver = true;
+      }
+      this.switchPlayers();
       this.displayPlayerInfo();
     }
-  }.bind(this), 300);
+  }.bind(this), 600);
 
   console.log(this.defendingPlayer.playerName + ": " + this.defendingPlayer.energy);
   console.log(this.attackingPlayer.playerName + ": " + this.attackingPlayer.energy);
   //check if there are any more regex objects left in defender's library
-  if(this.defendingPlayer.defenseRegexs.length === 0 || this.defendingPlayer.energy <= 0 || this.attackingPlayer.energy <= 0){
-    this.gameOver = true;
-  }
 }
 
 
