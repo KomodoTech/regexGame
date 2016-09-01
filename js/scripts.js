@@ -244,7 +244,7 @@ Player.prototype.modifyEnergy = function(energyChangeAmount) {
 
 /*======UI/DISPLAY====================================================================*/
 Player.prototype.drawPlayer = function() {
-//TODO: make drawPlayer
+//TODO: make drawPlayer Talk to imgscript somehow
   console.log('drawing player');
 }
 
@@ -262,7 +262,7 @@ function AttackString(stringValue) {
   this.attackValue = stringValue;
   this.energyCost = this.calculateAttackCost();
   this.attackName;
-  this.stringColor;
+  this.stringColor = this.generateAttackAppearance();
   this.stringGraphic;
 }
 
@@ -286,6 +286,7 @@ AttackString.prototype.generateAttackAppearance = function() {
   }
 
   this.stringColor = stringColor;
+
   return stringColor;
 }
 
@@ -304,8 +305,8 @@ function DefenseRegex(regexValue) {
   this.defenseObject = new RegExp(regexValue);
   this.energyCost = this.calculateDefenseCost();
   this.defendName;
-  this.stringColor;
-  this.stringGraphic;
+  this.regexColor;
+  this.regexGraphic;
   this.defeated = false;
 }
 
