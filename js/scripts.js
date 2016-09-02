@@ -1,5 +1,7 @@
 /*=VARIABLES==================================================================*/
 var logSpan = '';
+
+//String arrays which wille be used to create object arrays when the game is initialized
 var tutorialStringLibrary = ['log','bog','file','pen','mud'];
 var tutorialRegexLibrary = ['o', 'i', 'e','l|g','d|u'];
 
@@ -20,6 +22,8 @@ var levelFiveRegexLibrary = ['(d|o)*|[og]y$', '^s.*e$|c.*l$','^[^g|u]*$','gg|oo|
 
 
 /*=GENERAL FUNCTIONS==========================================================*/
+
+//these two functions take an array of strings as input and create arrays of AttackString and RegexObjects objects
 function makeAttackLibrary(stringLibrary) {
   var newLibrary = [];
   for (var stringIndex = 0; stringIndex < stringLibrary.length; stringIndex++) {
@@ -38,11 +42,6 @@ function makeDefenseLibrary(regexLibrary) {
   return newLibrary;
 }
 
-$('#musicToggle').trigger("play");
-$('#musicToggle').trigger("pause");
-
-
-
 /*=GAME OBJECT================================================================*/
 /*=====BACKEND================================================================*/
 function Game(players, gameTitle, level) {
@@ -51,10 +50,12 @@ function Game(players, gameTitle, level) {
   this.defendingPlayer = players[1];
   this.gameName = gameTitle; //"SnakeMan vs ManSnake: A Tale of Rejects"
   this.gameOver = false;
-  this.winner;
-  this.level = level;
+  this.winner; //assigned to the attackingPlayer when the game is over
+  this.level = level; //difficulty level of libraries used by player objects
 }
 
+
+//Not used, consider removal
 Game.prototype.resetGame = function() {
   if(this.gameOver) {
     this.gameOver = false;
@@ -67,7 +68,7 @@ Game.prototype.resetGame = function() {
   }
 }
 
-//NOTE: game will take attackingPlayer's currentString and compare it to defendingPlayer's currentRegex
+//NOTE: game will take attackingPlayer's currentString and compare it to each of the defending player's remaining regex defenses
 Game.prototype.evaluateTurn = function() {
   var stringAttack = this.attackingPlayer.attackString;
   addToLog(this.attackingPlayer.playerName + " attacks with ");
@@ -76,7 +77,14 @@ Game.prototype.evaluateTurn = function() {
   var stringEnergy = this.attackingPlayer.attackString.energyCost;
   this.attackingPlayer.modifyEnergy(-stringEnergy);
 
-  var initialLength = this.defendingPlayer.defenseRegexs.length;
+  //check if attack depletes the attacking player's energy
+  if(this.attackingPlayer.energy <= 0){
+    this.winner = this.defendingPlayer;
+    this.endGame();
+    return;
+  }
+
+  //var initialLength = this.defendingPlayer.defenseRegexs.length;
 
   // NOTE: loops through the defenseRegex library, evaluating attack on each defense. setInterval calls the callback function every 600ms. The callback function calls the evaluateAttack method and then increments the regex index. If the regexIndex reaches past the last index of the defenseRegexs library, the setInterval callback is cancelled, the defeated regexs are removed from the library, and the players are switched.
   var regexIndex = 0;
@@ -90,9 +98,10 @@ Game.prototype.evaluateTurn = function() {
     else if(regexIndex >= this.defendingPlayer.defenseRegexs.length){
       clearInterval(attackLoop);
       this.defendingPlayer.removeAllDefeatedRegexs();
+
+      //check if game is over
       if(this.defendingPlayer.defenseRegexs.length === 0 || this.defendingPlayer.energy <= 0 || this.attackingPlayer.energy <= 0){
         this.winner = this.attackingPlayer;
-        this.gameOver = true;
         this.endGame();
       }
       else {
@@ -100,11 +109,11 @@ Game.prototype.evaluateTurn = function() {
         this.displayPlayerInfo();
       }
     }
-  }.bind(this), 600);
+  }.bind(this), 600); //need to bind the game object as 'this' so that the setInterval callback function has access to it
 
 }
 
-
+//method for evaluating individual attack/defense combinations
 Game.prototype.evaluateAttack = function(testString, testRegex, testRegexIndex) {
   // debugger;
   var attackingPlayerString = testString;
@@ -121,7 +130,6 @@ Game.prototype.evaluateAttack = function(testString, testRegex, testRegexIndex) 
   // check to see if regex (defense) accepts string (attacks)
   var attackSuccess = this.testStringWithRegex(attackingPlayerString.attackValue, defendingPlayerRegex.defenseObject);
 
-  //TODO: print success and fail messages by inserting some html in the DOM
   if (attackSuccess) {
     defendingPlayerRegex.defeated = true;
     var defenseRegexCost = defendingPlayerRegex.calculateDefenseCost();
@@ -130,9 +138,7 @@ Game.prototype.evaluateAttack = function(testString, testRegex, testRegexIndex) 
     logEvent();
   }
   else {
-
     addToLog("Deflected!", "#CF5551");
-
     logEvent();
   }
   return attackSuccess;
@@ -167,7 +173,18 @@ Game.prototype.getPlayerAtPosition = function(side) {
   }
 }
 
+//sets attacking player as winner, hides attack buttons, and logs the winner
 Game.prototype.endGame = function () {
+
+  this.gameOver = true;
+
+  for (var player = 0; player < this.players.length; player++) {
+    if (this.players[player].energy <= 0 || this.players[player].defenseRegexs.length === 0) {
+        $("#" + this.players[player].boardSide + "Box div .energy-bar").empty();
+        $("#" + this.players[player].boardSide + "Box div .energy-bar").append("YOU HAVE LOST");
+    }
+  }
+
   $("#left-player-action").hide();
   $("#right-player-action").hide();
   addToLog("Level " + this.level + " completed - " + this.winner.playerName + " won!");
@@ -176,14 +193,14 @@ Game.prototype.endGame = function () {
 
 /*======UI====================================================================*/
 
+//loops through the games object array and displays information for both of them
 Game.prototype.displayPlayerInfo = function(){
   for (var playerIndex = 0; playerIndex < this.players.length; playerIndex++) {
     var player = this.players[playerIndex];
 
-    //display health-bar
+    //display health-bar - adds one pipe for each unit of energy
     $("#" + player.boardSide + "Box div .energy-bar").empty();
     var healthDisplayChunk = 0;
-    //TODO Check for rounding errors
     while(healthDisplayChunk < player.energy){
       $("#" + player.boardSide + "Box div .energy-bar").append("|");
       healthDisplayChunk ++;
@@ -195,6 +212,7 @@ Game.prototype.displayPlayerInfo = function(){
     //TODO: Look into object comparison
     if (this.attackingPlayer === player) {
       $("#" + player.boardSide + "-player-options").append("Select a string and attack");
+      //add radio button for each attack string. Value of radio button is the string.
       player.attackStrings.forEach(function(attackString){
         $("#" + player.boardSide + "-player-options").append("<div class='attackRadio'><input type='radio' class='radOpt' name='attacks' value='" + attackString.attackValue + "'> " + attackString.attackValue + "</div>");
       });
@@ -212,15 +230,6 @@ Game.prototype.displayPlayerInfo = function(){
       $("#" + player.boardSide + "-player-action").hide();
     }
   }
-  //TODO: move this check somewhere else so that alert doesn't get triggered twice
-  if (this.gameOver) {
-    for (var player = 0; player < this.players.length; player++) {
-      if (this.players[player].energy <= 0 || this.players[player].defenseRegexs.length === 0) {
-          $("#" + this.players[player].boardSide + "Box div .energy-bar").empty();
-          $("#" + this.players[player].boardSide + "Box div .energy-bar").append("YOU HAVE LOST");
-      }
-    }
-  }
 }
 
 /*=PLAYER OBJECT==============================================================*/
@@ -231,9 +240,8 @@ function Player(name, regexLibrary, stringLibrary, boardSide) {
   this.energy = 100;
   this.attackStrings = stringLibrary;
   this.defenseRegexs = regexLibrary;
-  this.human = true;
-  this.attackString;
-
+  this.human = true; //not used
+  this.attackString; //current attack string; changed on every round to the value of the checked radio button
   this.boardSide = boardSide;
 }
 
@@ -253,6 +261,7 @@ Player.prototype.removeRegexFromLibrary = function(regexIndex) {
   return removedRegex;
 }
 
+//called at the end of turn to clear defeated regexs from defending player's library
 Player.prototype.removeAllDefeatedRegexs = function() {
   for(var regexIndex = this.defenseRegexs.length - 1; regexIndex >= 0; regexIndex--){
     if(this.defenseRegexs[regexIndex].defeated){
@@ -289,6 +298,7 @@ Player.prototype.modifyEnergy = function(energyChangeAmount) {
 }
 
 /*======UI/DISPLAY====================================================================*/
+//none of these are currently used
 Player.prototype.drawPlayer = function() {
 //TODO: make drawPlayer Talk to imgscript somehow
   console.log('drawing player');
@@ -338,6 +348,7 @@ AttackString.prototype.generateAttackAppearance = function() {
 }
 
 /*======UI/DISPLAY====================================================================*/
+//not sure the point of this; all it does is call a different method
 AttackString.prototype.drawAttack = function() {
   this.generateAttackAppearance();
 }
@@ -390,6 +401,9 @@ DefenseRegex.prototype.drawDefense = function() {
   this.generateDefenseAppearance();
 }
 
+/*======jQuery and webpage logic======================================================*/
+
+//this adds a span to the global logSpan variable. Must be called separately for strings of different colors.
 function addToLog(string, inputColor){
   var color = 'black';
   if(inputColor){color = inputColor;}
@@ -397,6 +411,7 @@ function addToLog(string, inputColor){
   logSpan += newSpan;
 }
 
+//appends global logSpan variable to the event log and then clears logSpan for the next line
 function logEvent(){
   $('#event-log').append("<li>" + logSpan + "</li>");
   logSpan = '';
@@ -470,7 +485,7 @@ $(document).ready(function(){
   $(".energy-bar").css('font-size', healthTickSize);
 
 
-  //TODO: allow for 2 human players
+  //TODO: allow for 2 human players.
   $("#left-player-action").click(function() {
     //TODO: refactor to allow for left right player action functionality to be combined
     var leftPlayer = myGame.getPlayerAtPosition("left");
