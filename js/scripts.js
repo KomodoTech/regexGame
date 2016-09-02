@@ -38,7 +38,8 @@ function makeDefenseLibrary(regexLibrary) {
   return newLibrary;
 }
 
-
+$('#musicToggle').trigger("play");
+$('#musicToggle').trigger("pause");
 
 
 
@@ -455,6 +456,7 @@ $(document).ready(function(){
     myGame = initializeGame();
     $("#choose-level-box").hide();
     $("#game-display").show();
+    $("#reset").show();
     addToLog('Start!');
     logEvent();
   })

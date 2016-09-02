@@ -87,7 +87,7 @@ img {
   margin-left: 1%;
 }
 
-#left-player-action, #right-player-action, #reset {
+#left-player-action, #right-player-action {
   background-color: #9d9daf;
   margin-bottom: 10%;
   position: absolute;
@@ -95,6 +95,13 @@ img {
   left: 50%;
   transform: translate(-50%);
   text-align: right;
+}
+
+#reset {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%);
+  display: none;
 }
 
 .energy-bar {
@@ -134,4 +141,16 @@ p {
   background-color: #c9b19c;
   text-align: center;
   color: black;
+}
+
+audio {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%);
+  margin-top: 5%;
+}
+
+.controls {
+  color: #0e0e25;
+  border-radius: 8px;
 }
