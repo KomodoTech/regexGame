@@ -3,7 +3,7 @@
 #### Epicodus | 08.29.16
 ###### _By **Peter Armington // Alex Leibler // Kyle Fisher // Zachary Hedgepeth // Meredith Alcorn**_
 
-![sample screenshot](regexrejects.png)
+![sample screenshot](rejectsregex.png)
 
 ## **//** Description
 
